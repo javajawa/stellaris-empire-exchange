@@ -87,7 +87,7 @@ class StellarisHandler(http.server.BaseHTTPRequestHandler):
             return
 
         count: int = int(data["empire_count"][0])
-        unmod: bool = 'include_unmoderated' in data
+        unmod: bool = "include_unmoderated" in data
 
         files = glob.glob(f"approved/**/*.txt")
 

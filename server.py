@@ -119,6 +119,10 @@ class StellarisHandler(http.server.BaseHTTPRequestHandler):
         username = username.replace("/", "_")
         username = username.replace(".", "_")
 
+        if not username:
+            self.send_error(415)
+            return
+
         for folder in ["approved", "pending"]:
             if not os.path.exists(f"{folder}/{username}"):
                 os.mkdir(f"{folder}/{username}")

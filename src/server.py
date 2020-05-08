@@ -45,7 +45,7 @@ class StellarisHandler(http.server.BaseHTTPRequestHandler):
         self.send_error(404)
 
     def page_index(self: StellarisHandler):
-        with open("upload.html", "rb") as contents:
+        with open("html/upload.html", "rb") as contents:
             stat = os.fstat(contents.fileno())
 
             self.send_response(200)
@@ -64,8 +64,6 @@ class StellarisHandler(http.server.BaseHTTPRequestHandler):
                 obj = common.parse(handle)
 
             if isinstance(obj, list) and len(obj) == 1:
-                if not isinstance(obj[0], list):
-                    continue
 
                 obj = obj[0]
 
@@ -162,6 +160,9 @@ class StellarisHandler(http.server.BaseHTTPRequestHandler):
 
 
 def main():
+    os.chdir(os.path.dirname(os.path.realpath(__file__)))
+    os.chdir('..')
+
     for folder in ["approved", "pending"]:
         if not os.path.exists(folder):
             os.mkdir(folder)

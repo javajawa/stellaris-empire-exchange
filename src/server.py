@@ -10,8 +10,10 @@ import glob
 import http.server
 import json
 import os
+import random
 import shutil
 import ssl
+import urllib.parse
 
 import importer
 import common
@@ -23,23 +25,20 @@ class StellarisHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self: StellarisHandler):
         """Serve a GET request."""
 
-        if self.path == "/":
+        path = urllib.parse.urlparse(self.path).path
+
+        if path == "/":
             self.page_file("html/upload.html", "text/html")
-            return
-
-        if self.path == "/upload.js":
+        elif path == "/upload.js":
             self.page_file("html/upload.js", "application/javascript")
-            return
-
-        if self.path == "/ajax-approved":
+        elif path == "/generate":
+            self.download_user_empires()
+        elif path == "/ajax-approved":
             self.page_ajax_list("approved")
-            return
-
-        if self.path == "/ajax-pending":
+        elif path == "/ajax-pending":
             self.page_ajax_list("pending")
-            return
-
-        self.send_error(404)
+        else:
+            self.send_error(404)
 
     def page_file(self: StellarisHandler, filename: str, mime: str):
         with open(filename, "rb") as contents:
@@ -78,6 +77,41 @@ class StellarisHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
 
         self.wfile.write(jsondata)
+
+    def download_user_empires(self: StellarisHandler):
+        query = urllib.parse.urlparse(self.path).query
+        data = urllib.parse.parse_qs(query)
+
+        if "empire_count" not in data:
+            self.send_error(400)
+            return
+
+        count: int = int(data["empire_count"][0])
+        unmod: bool = 'include_unmoderated' in data
+
+        files = glob.glob(f"approved/**/*.txt")
+
+        if unmod:
+            files = files + glob.glob("pending/**/*.txt")
+
+        files = random.sample(files, min(count, len(files)))
+        length: int = 0
+
+        for filename in files:
+            stat = os.stat(filename)
+            length = length + stat.st_size
+
+        self.send_response(200)
+        self.send_header("Content-Type", "text/plain")
+        self.send_header(
+            "Content-Disposition", 'attachment; filename="user_empire_designs.txt"'
+        )
+        self.send_header("Content-Length", str(length))
+        self.end_headers()
+
+        for filename in files:
+            with open(filename, "rb") as handle:
+                shutil.copyfileobj(handle, self.wfile)
 
     def do_POST(self: StellarisHandler):
         if self.path != "/do-upload":

@@ -8,7 +8,7 @@
 	<body>
 		<h1>Stellaris Empire Exchange</h1>
 
-		<h3>Upload Your Empires</h3>
+		<h2>Upload Your Empires</h2>
 		<form action="do-upload" method="post" enctype="multipart/form-data">
 			<label for=username">Username:</label>
 			<input type="text" name="username" id="username"/>
@@ -23,9 +23,38 @@
 				<p>You can find your user_empire_designs.txt file in [todo].</p>
 			</ul>
 
-			<input id="submit" type="submit" disabled/>
+			<p>
+				<input id="submit" type="submit" disabled value="Upload"/>
+			</p>
 		</form>
 		<p>Uploads works, but can not currently be used for anything</p>
+
+		<hr />
+		<h2>Generate An Empire List</h2>
+
+		<p>
+			Here you can generate and download an random
+			<code>user_empire_designs.txt</code> to put into your Stellaris
+			folder, and play with other peoples' empires.
+		</p>
+		<p>(Note: support to generate a real mod is still in the works)</p>
+
+		<form method="get" action="/generate">
+			<p>
+				<label for="empire_count">Number of Empires to include</label>
+				<input id="empire_count" name="empire_count" type="number" min="4" max="80"/>
+			</p>
+			<p>
+				<input type="checkbox" name="include_unmoderated" id="include_unmoderated" />
+				<label for="include_unmoderated">Included Unmoderated Empires</label>
+			</p>
+			<p>
+				<input type="submit" value="Download" />
+			</p>
+		</form>
+
+		<hr />
+		<h2>Uploaded Empires</h2>
 
 		<h3>Approved Empires</h3>
 		<ul id="approved"></ul>

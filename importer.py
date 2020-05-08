@@ -80,7 +80,9 @@ def is_valid_empire(data: ClausObject):
 
 
 def get_values(data: ClausObject, key: str) -> List[ClausDatum]:
-    return [t[1] for t in data if isinstance(t, tuple) and t[0] == key]
+    tuples = [t for t in data if isinstance(t, tuple)]
+
+    return [t[1] for t in tuples if t[0] == key]
 
 
 def has_value(data: ClausObject, key: str) -> bool:
@@ -101,6 +103,7 @@ def get_value(data: ClausObject, key: str) -> Optional[ClausDatum]:
 
 def add_value(data: ClausObject, key: str, value: str):
     data.append((key, value))
+
 
 if __name__ == "__main__":
     main("user_empire_designs.txt")

@@ -64,6 +64,9 @@ class StellarisHandler(http.server.BaseHTTPRequestHandler):
                 obj = common.parse(handle)
 
             if isinstance(obj, list) and len(obj) == 1:
+                if not isinstance(obj[0], list):
+                    continue
+
                 obj = obj[0]
 
             if isinstance(obj, tuple):

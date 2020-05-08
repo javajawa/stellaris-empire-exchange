@@ -3,9 +3,9 @@
 
 from __future__ import annotations
 
-from typing import IO, List, Tuple, Union
+from typing import Any, IO, List, Tuple, Union
 
-ClausDatum = Union[str, Tuple[str, Union[str, bool, float, int, List["ClausDatum"]]]]
+ClausDatum = Union[str, Tuple[str, Any]]
 ClausObject = List[ClausDatum]
 
 

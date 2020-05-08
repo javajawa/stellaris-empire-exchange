@@ -1,0 +1,6 @@
+*.pyc
+/.mypy_cache
+/approved
+/pending
+__pycache__
+ssl.cert

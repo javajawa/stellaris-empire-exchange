@@ -24,7 +24,11 @@ class StellarisHandler(http.server.BaseHTTPRequestHandler):
         """Serve a GET request."""
 
         if self.path == "/":
-            self.page_index()
+            self.page_file("html/upload.html", "text/html")
+            return
+
+        if self.path == "/upload.js":
+            self.page_file("html/upload.js", "application/javascript")
             return
 
         if self.path == "/ajax-approved":
@@ -37,12 +41,12 @@ class StellarisHandler(http.server.BaseHTTPRequestHandler):
 
         self.send_error(404)
 
-    def page_index(self: StellarisHandler):
-        with open("html/upload.html", "rb") as contents:
+    def page_file(self: StellarisHandler, filename: str, mime: str):
+        with open(filename, "rb") as contents:
             stat = os.fstat(contents.fileno())
 
             self.send_response(200)
-            self.send_header("Content-type", "text/html")
+            self.send_header("Content-type", mime)
             self.send_header("Content-Length", str(stat.st_size))
             self.end_headers()
 

@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from typing import List
+
 import cgi
 import glob
 import http.server
@@ -16,18 +18,9 @@ import common
 
 
 class StellarisHandler(http.server.BaseHTTPRequestHandler):
-    """Simple HTTP request handler with GET/HEAD/POST commands.
-    This serves files from the current directory and any of its
-    subdirectories. The MIME type for files is determined by
-    calling the .guess_type() method. And can reveive file uploaded
-    by client.
-    The GET/HEAD/POST requests are identical except that the HEAD
-    request omits the actual contents of the file.
-    """
-
     server_version = "StellarisEmpireSharer"
 
-    def do_GET(self):
+    def do_GET(self: StellarisHandler):
         """Serve a GET request."""
 
         if self.path == "/":
@@ -64,11 +57,8 @@ class StellarisHandler(http.server.BaseHTTPRequestHandler):
                 obj = common.parse(handle)
 
             if isinstance(obj, list) and len(obj) == 1:
-
-                obj = obj[0]
-
-            if isinstance(obj, tuple):
-                obj = obj[1]
+                if isinstance(obj[0], tuple):
+                    obj = obj[0][1]
 
             name = importer.get_value(obj, "key")
             author = importer.get_value(obj, "author")
@@ -85,12 +75,12 @@ class StellarisHandler(http.server.BaseHTTPRequestHandler):
 
         self.wfile.write(jsondata)
 
-    def do_POST(self):
+    def do_POST(self: StellarisHandler):
         if self.path != "/do-upload":
             self.send_error(405)
             return
 
-        ctype = self.headers["content-type"].strip()
+        ctype = str(self.headers["content-type"]).strip()
 
         if ";" not in ctype:
             self.send_error(415)
@@ -102,19 +92,22 @@ class StellarisHandler(http.server.BaseHTTPRequestHandler):
             self.send_error(415)
             return
 
-        boundary = boundary.strip().replace("boundary=", "").encode("ascii")
+        bound_bytes: bytes = boundary.strip().replace("boundary=", "").encode("ascii")
 
-        length = self.headers["content-length"].strip()
-        length = int(length)
+        length = str(self.headers["content-length"]).strip()
+        length_bytes = length.encode("ascii")
 
         msg = cgi.parse_multipart(
-            self.rfile, {"boundary": boundary, "CONTENT-LENGTH": length}
+            self.rfile, {"boundary": bound_bytes, "CONTENT-LENGTH": length_bytes}
         )
 
         if "select" not in msg or "file" not in msg or "username" not in msg:
             self.send_error(415)
             return
 
+        self.process_upload(msg)
+
+    def process_upload(self: StellarisHandler, msg):
         # Extract the username, create folders
         username = msg["username"][0]
         username = username.replace("/", "_")
@@ -133,12 +126,15 @@ class StellarisHandler(http.server.BaseHTTPRequestHandler):
         empires = importer.parse_user_empires(upload)
 
         # Get the list of empires we want to import
-        wanted = [t.strip().strip('"') for t in msg["select"]]
+        wanted: List[str] = [t.strip().strip('"') for t in msg["select"]]
 
-        report = "Attempt Upload " + ", ".join(msg["select"]) + ".\n\n"
+        report: str = "Attempt Upload " + ", ".join(msg["select"]) + ".\n\n"
 
         for name, empire in empires:
             if name not in wanted:
+                continue
+
+            if not isinstance(empire, list):
                 continue
 
             if not importer.is_valid_empire(empire):
@@ -149,19 +145,19 @@ class StellarisHandler(http.server.BaseHTTPRequestHandler):
             importer.store(empire, f"pending/{username}")
             report += f"Stored {name}\n"
 
-        report = report.encode("utf-8")
+        report_bytes: bytes = report.encode("utf-8")
 
         self.send_response(201)
         self.send_header("Content-Type", "text/plain")
-        self.send_header("Content-Length", len(report))
+        self.send_header("Content-Length", str(len(report_bytes)))
         self.end_headers()
 
-        self.wfile.write(report)
+        self.wfile.write(report_bytes)
 
 
 def main():
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
-    os.chdir('..')
+    os.chdir("..")
 
     for folder in ["approved", "pending"]:
         if not os.path.exists(folder):

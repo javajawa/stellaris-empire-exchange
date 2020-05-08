@@ -43,7 +43,6 @@ class StellarisHandler(http.server.BaseHTTPRequestHandler):
             return
 
         self.send_error(404)
-        self.send_error(404)
 
     def page_index(self: StellarisHandler):
         with open("upload.html", "rb") as contents:
@@ -71,9 +70,10 @@ class StellarisHandler(http.server.BaseHTTPRequestHandler):
                 obj = obj[1]
 
             name = importer.get_value(obj, "key")
+            author = importer.get_value(obj, "author")
             ethics = importer.get_values(obj, "ethic")
 
-            output.append({"author": "???", "name": name, "ethics": ethics})
+            output.append({"author": author, "name": name, "ethics": ethics})
 
         jsondata = json.dumps(output).encode("utf-8")
 
@@ -140,6 +140,7 @@ class StellarisHandler(http.server.BaseHTTPRequestHandler):
                 report += f"{name} does not appear to be a valid empire?\n"
                 continue
 
+            importer.add_value(empire, "author", username)
             importer.store(empire, f"pending/{username}")
             report += f"Stored {name}\n"
 

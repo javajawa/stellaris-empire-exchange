@@ -99,5 +99,8 @@ def get_value(data: ClausObject, key: str) -> Optional[ClausDatum]:
     return candidates[0]
 
 
+def add_value(data: ClausObject, key: str, value: str):
+    data.append((key, value))
+
 if __name__ == "__main__":
     main("user_empire_designs.txt")

@@ -25,7 +25,7 @@ def main(filename: str):
             continue
 
         store(empire)
-        print("Imported %s" % name)
+        print(f"Imported {name}")
 
 
 def parse_user_empires(data: str) -> ClausObject:
@@ -49,7 +49,7 @@ def store(empire: ClausObject, folder: str = "pending"):
     filename = f"{folder}/{name}.txt"
 
     with open(filename, "w") as handle:
-        handle.write('"%s"={\n' % name)
+        handle.write(f'"{name}"={{\n')
         write(empire, handle, 1)
         handle.write("}\n")
 

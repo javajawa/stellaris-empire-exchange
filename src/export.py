@@ -17,7 +17,7 @@ def main():
     empires = random.sample(empires, min(8, len(empires)))
 
     for empire in empires:
-        with open("empires/%s" % empire) as input_file:
+        with open(f"empires/{empire}") as input_file:
             write(parse(input_file), sys.stdout)
 
 

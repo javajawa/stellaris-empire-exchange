@@ -56,7 +56,7 @@ def write(data: ClausObject, handle: IO, depth: int = 0):
 
         key, value = item
 
-        handle.write('"%s"' % key if " " in key else key)
+        handle.write(f'"{key}"' if " " in key else key)
         handle.write("=")
 
         if isinstance(value, List):
@@ -76,4 +76,4 @@ def write_literal(value: Union[bool, str, float, int], handle: IO):
     elif isinstance(value, int) or isinstance(value, float):
         handle.write(value)
     else:
-        handle.write('"%s"' % value)
+        handle.write(f'"{value}"')

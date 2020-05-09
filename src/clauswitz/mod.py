@@ -9,11 +9,36 @@ Selection of functions to generate a mod from a user_empire_designs.txt file
 from __future__ import annotations
 
 from typing import Dict, Set, Union
-from io import BytesIO
+from io import BytesIO, StringIO
 
 import os
 import shutil
 import zipfile
+
+from clauswitz import parser
+
+
+def normalise_path(file_name: str) -> str:
+    """
+    Normalises a path name to be OS-compliant, and remove relative
+    part components.
+
+    Raises a ValueError if the path is not beneath the current directory,
+    either through being an absolute path, or
+
+    # TODO: On Windows, the absolute path check is incorrect.
+
+    :param file_name: The filename
+
+    :return: The normalised filename
+    """
+
+    file_path = os.path.normpath(file_name)
+
+    if not file_path or file_path.startswith(".") or file_path.startswith('/'):
+        raise ValueError(f"Invalid Path: {file_path}")
+
+    return file_path
 
 
 class ModPack:
@@ -27,7 +52,7 @@ class ModPack:
     short_name: str
     # The version number of the mod.
     version: str
-    # The supported version of stellaris.
+    # The supported version of Stellaris.
     stellaris_versions: str = "*"
 
     # List of the mods this mod depends on.
@@ -77,7 +102,7 @@ class ModPack:
 
         self.tags.add(tag)
 
-    def add_thumbnail(self: ModPack, thumbnail: Union[BytesIO, str]) -> None:
+    def add_thumbnail(self: ModPack, thumbnail: Union[BytesIO, bytes, str]) -> None:
         """
         Adds a thumbnail to the mod pack
 
@@ -85,25 +110,17 @@ class ModPack:
                           the path to the thumbnail file.
         """
 
-        raise Exception("Not yet implemented")
+        if self.has_file("thumbnail.png"):
+            raise FileExistsError("Already have a thumbnail")
 
-    def normpath(self: ModPack, file_name: str) -> str:
-        """
-        Normalises a path name to be OS-compliant, and remove relative
-        part components.
+        if isinstance(thumbnail, str):
+            if os.path.exists(thumbnail):
+                self.add_file("thumbnail.png", thumbnail)
+                return
 
-        Throws an exception if the path is not beneath the current directory.
+            thumbnail = thumbnail.encode("utf-8")
 
-        :param file_name: The filename
-        :return: The normalised filename
-        """
-
-        file_path = os.path.normpath(file_name)
-
-        if not file_path or file_path.startswith("."):
-            raise Exception(f"Invalid Path: {file_path}")
-
-        return file_path
+        self.get_file_writer("thumbnail.png").write(thumbnail)
 
     def has_file(self: ModPack, file_name: str) -> bool:
         """
@@ -112,56 +129,100 @@ class ModPack:
         :param file_name: The file name/path in the mod pack
         """
 
-        path = self.normpath(file_name)
+        path = normalise_path(file_name)
 
         return path in self.files_to_add or path in self.files_to_write
 
-    def add_file(self: ModPack, dest_file: str, source_file: str) -> bool:
-        path = self.normpath(dest_file)
+    def add_file(self: ModPack, destination_file: str, source_file: str) -> bool:
+        """
+        Marks a file, which currently exists on disk, to be added to the mod.
 
+        The source file must exist, however its contents will not be read until
+        the mod is built. If the file is deleted in the meantime, the behaviour
+        is not defined.
+
+        If the source file does not exist, a FileNotFoundError is raised.
+        If destination file is not inside the mod pack (e.g. absolute path or
+        too many /../ elements, throws a
+
+        Returns true if the source file exists, and the destination file was
+        not already in the mod pack.
+
+        :param destination_file: The location of the file in the mod pack.
+        :param source_file:      The location of the file currently on disk.
+
+        :return: Whether the file was added.
+        """
+
+        # Ensure the destination path is valid
+        path = normalise_path(destination_file)
+
+        # Ensure the source file exists
+        if not os.path.exists(source_file) and os.path.isfile(source_file):
+            raise FileNotFoundError(f"File {source_file} does not exist")
+
+        # Check if there is a duplicate file.
         if self.has_file(path):
             return False
-
-        if not os.path.exists(source_file):
-            raise Exception(f"File {source_file} does not exist")
 
         self.files_to_add[path] = source_file
 
         return True
 
-    def get_file_writer(self: ModPack, dest_file: str) -> BytesIO:
-        path = self.normpath(dest_file)
+    def get_file_writer(self: ModPack, destination_file: str) -> BytesIO:
+        """
+        Creates a in-memory File writer for a destination_file in the mod pack.
 
+        If this method has previously been called for the same file, then the
+        same writer will be returned, allowing for appending. If you need to
+        ensure this is a new file, use ModPack.has_file to check.
+
+        This function will raise a FileExistsError if a call to add_file
+        has been made with the same destination. It will raise a ValueError
+        if the destination path is not a valid relative path to the mod root
+        (e.g. is an absolute path or has too many /../ elements).
+
+        :param destination_file: The file to get or create a writer for.
+
+        :return:
+        """
+
+        # Ensure the path is valid.
+        path = normalise_path(destination_file)
+
+        # If this file has already been added as a copy of and external file,
+        # we can't also have it as an in-memory stream.
         if path in self.files_to_add:
-            raise Exception(f"Can not create file {path} that has been added")
+            raise FileExistsError(f"Can not create file {path}, as it has been added")
 
+        # If we don't already have a in-memory file with this name, create it.
         if path not in self.files_to_write:
             self.files_to_write[path] = BytesIO()
 
+        # Return the stream
         return self.files_to_write[path]
 
-    def get_metadata(self: ModPack) -> str:
-        return "\n".join(
+    def get_metadata(self: ModPack) -> StringIO:
+        """
+        Gets the mod metadata, for writing to the .mod files.
+
+        :return: The mod's metadata.
+        """
+
+        output = StringIO()
+        parser.write(
             [
-                # Element 1 - Name
-                f'name="{self.name}"',
-                # Element 2 - Version
-                f'version="{self.version}"',
-                # Element 3 - path
-                f'path="mod/{self.short_name}"',
-                # Element 4 - supported version
-                f'supported_version="{self.stellaris_versions}"'
-                # Element 5 - dependencies
-                "dependencies={",
-                "\n".join([f'\t"{dep}"' for dep in self.dependencies]),
-                "}",
-                # Element 6 - tags
-                "tags={",
-                "\n".join([f'\t"{tag}"' for tag in self.tags]),
-                "}",
-                "",
-            ]
+                ("name", self.name),
+                ("version", self.version),
+                ("path", f"mod/{self.short_name}"),
+                ("supported_version", self.stellaris_versions),
+                ("dependencies", self.dependencies),
+                ("tags", self.tags)
+            ],
+            output
         )
+
+        return output
 
     def write_to_folder(self: ModPack, dest_folder: str) -> None:
         """
@@ -172,16 +233,17 @@ class ModPack:
         mod_file: str = os.path.join(dest_folder, f"{self.short_name}.mod")
 
         os.makedirs(mod_folder, exist_ok=True)
+        metadata = self.get_metadata()
 
         with open(mod_file, "w", encoding="utf-8") as mod_handle:
             mod_handle.write("\ufeff")
-            mod_handle.write(self.get_metadata())
+            shutil.copyfileobj(metadata, mod_handle)
 
         with open(
             os.path.join(mod_folder, "descriptor.mod"), "w", encoding="utf-8"
         ) as mod_handle:
             mod_handle.write("\ufeff")
-            mod_handle.write(self.get_metadata())
+            shutil.copyfileobj(metadata, mod_handle)
 
         for (file_name, source) in self.files_to_add.items():
             dest = os.path.join(mod_folder, file_name)
@@ -228,6 +290,9 @@ class ModPack:
 
 if __name__ == "__main__":
     mod = ModPack("Test Mod", "test-mod", "0.1")
+    print(mod.get_metadata())
+    mod.add_tags("Hello")
+    print(mod.get_metadata())
     mod.add_file("example/text.txt", "requirements.txt")
     mod.write_to_folder("mods")
     mod.write_to_zip("test.zip")

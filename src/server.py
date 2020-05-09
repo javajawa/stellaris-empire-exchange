@@ -17,7 +17,7 @@ import ssl
 import urllib.parse
 
 import importer
-import common
+from clauswitz import parser
 
 
 class StellarisHandler(http.server.BaseHTTPRequestHandler):
@@ -58,7 +58,7 @@ class StellarisHandler(http.server.BaseHTTPRequestHandler):
 
         for filename in files:
             with open(filename, "r") as handle:
-                obj = common.parse(handle)
+                obj = parser.parse(handle)
 
             if isinstance(obj, list) and len(obj) == 1:
                 if isinstance(obj[0], tuple):

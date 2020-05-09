@@ -60,7 +60,7 @@ def write(data: ClausObject, handle: IO, depth: int = 0):
         handle.write(f'"{key}"' if " " in key else key)
         handle.write("=")
 
-        if isinstance(value, List):
+        if isinstance(value, (list, set)):
             handle.write("{\n")
             write(value, handle, depth + 1)
             handle.write("\t" * depth)

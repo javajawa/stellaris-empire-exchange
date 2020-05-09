@@ -9,25 +9,7 @@ from typing import List, Optional
 import re
 import io
 
-from common import ClausObject, ClausDatum, parse, write
-
-
-def main(filename: str):
-    with open(filename) as handle:
-        data = handle.read()
-
-    empires = parse_user_empires(data)
-
-    for name, empire in empires:
-        if not isinstance(empire, list):
-            raise Exception
-
-        if not is_valid_empire(empire):
-            continue
-
-        store(empire)
-        print(f"Imported {name}")
-
+from clauswitz.parser import ClausObject, ClausDatum, parse, write
 
 def parse_user_empires(data: str) -> ClausObject:
     # Normalise line endings.

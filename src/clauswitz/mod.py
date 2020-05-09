@@ -35,7 +35,7 @@ def normalise_path(file_name: str) -> str:
 
     file_path = os.path.normpath(file_name)
 
-    if not file_path or file_path.startswith(".") or file_path.startswith('/'):
+    if not file_path or file_path.startswith(".") or file_path.startswith("/"):
         raise ValueError(f"Invalid Path: {file_path}")
 
     return file_path
@@ -102,7 +102,7 @@ class ModPack:
 
         self.tags.add(tag)
 
-    def add_thumbnail(self: ModPack, thumbnail: Union[BytesIO, bytes, str]) -> None:
+    def add_thumbnail(self: ModPack, thumbnail: Union[bytes, str]) -> None:
         """
         Adds a thumbnail to the mod pack
 
@@ -216,10 +216,10 @@ class ModPack:
                 ("version", self.version),
                 ("path", f"mod/{self.short_name}"),
                 ("supported_version", self.stellaris_versions),
-                ("dependencies", self.dependencies),
-                ("tags", self.tags)
+                ("dependencies", list(self.dependencies)),
+                ("tags", list(self.tags)),
             ],
-            output
+            output,
         )
 
         return output

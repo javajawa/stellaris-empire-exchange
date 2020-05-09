@@ -35,6 +35,7 @@ class StellarisHandler(http.server.BaseHTTPRequestHandler):
 
         if path not in ROUTING:
             self.send_error(404)
+            return
 
         func: callable = ROUTING[path][0]
         func(self, *ROUTING[path][1:])

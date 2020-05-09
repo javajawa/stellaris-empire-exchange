@@ -39,7 +39,6 @@ class StellarisHandler(http.server.BaseHTTPRequestHandler):
         func: callable = ROUTING[path][0]
         func(self, *ROUTING[path][1:])
 
-
     def do_POST(self: StellarisHandler):
         if self.path != "/do-upload":
             self.send_error(405)

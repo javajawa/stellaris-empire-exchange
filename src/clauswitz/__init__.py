@@ -14,4 +14,4 @@ from .parser import parse as parse_data
 
 from .mod import ModPack
 
-__all__ = [ClausDatum, ClausObject, write_claus_object, parse_data, ModPack]
+__all__ = ['ClausDatum', 'ClausObject', 'write_claus_object', 'parse_data', 'ModPack']

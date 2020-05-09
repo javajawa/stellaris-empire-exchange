@@ -42,13 +42,13 @@ def create_empire_mod(
     :param perform_cleanup: whether to prevent deleting temporary files
     """
 
-    # Define prerequisites
-    #   No dependencies
-    list_dependancies: List[str] = []
-    #   Minimal Tags
+    # Define prerequisites: No dependencies
+    list_dependencies: List[str] = []
+
+    # Tags: Just changing species
     list_tags = ["Species"]
-    #   supported_version
-    #      This is 2.* because that seems like the best option
+
+    # Requires Stellaris Version: 2.*
     supported_version = "2.*"
 
     # Create prerequisites
@@ -57,7 +57,7 @@ def create_empire_mod(
         modname_long,
         modname_short,
         mod_versionno,
-        list_dependancies,
+        list_dependencies,
         list_tags,
         supported_version,
         thumbnail_file,
@@ -73,7 +73,7 @@ def create_empire_mod(
 
     # Cleanup created files
     if perform_cleanup:
-        create_stellaris_prereq.cleanup_directory(target_folder, modname_short)
+        create_stellaris_prereq.cleanup_directory(target_folder)
 
     return mod_zipfile
 
@@ -120,23 +120,26 @@ def create_empire_mod_temp(
     return new_filename
 
 
-def insert_empire_file(
-    target_folder,  # String - path to where this mod should be generated
-    ued_file,  # String - path to the source user_empire_designs.txt file
-    modname_short,  # String - name of the mod, used in filenames
-):
-    # Inserts the empire file into the correct folder
+def insert_empire_file(target_folder: str, ued_file: str, modname_short: str):
+    """
+    Inserts the empire file into the correct folder
+
+    :param target_folder: path to where this mod should be generated
+    :param ued_file:      path to the source user_empire_designs.txt file
+    :param modname_short: name of the mod, used in filenames
+    """
 
     # Definitions:
     mod_dir = target_folder + "/mod/"
     modname_dir = mod_dir + modname_short + "/"
+
     # Folder and file for the actual empire name
     empires_folder = modname_dir + "prescripted_countries/"
-    empires_filename = "01_{0}_countries.txt".format(modname_short)
+    empires_filename = f"01_{modname_short}_countries.txt"
     empires_filepath = empires_folder + empires_filename
 
     # Make the empires_folder
-    if not (os.path.isdir(empires_folder)):
+    if not os.path.isdir(empires_folder):
         os.mkdir(empires_folder)
 
     # Copy the file around

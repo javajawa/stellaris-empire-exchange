@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+# -*- coding: utf-8 -*-
 # vim: nospell ts=4 expandtab
 
 from __future__ import annotations

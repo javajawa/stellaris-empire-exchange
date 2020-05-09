@@ -1,37 +1,47 @@
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
+# vim: nospell ts=4 expandtab
 
-# os to use mkdir, path.splitext and path.isfile
+"""
+Functions:
+
+    create_prereq       Creates all the required files and folders
+    create_folders      Creates the mod folders and required subfolders
+    create_reqfiles     Creates the required files for a mod to function.
+    create_thumbnail    Creates a thumbnail file.
+    zip_stellaris_mod   Turns the mod into a zip
+"""
+
+from __future__ import annotations
+
+from typing import List, Optional
+
 import os
-
-# Copyfile to copy files around
-from shutil import copyfile
-
-# Zipping commands
-from shutil import make_archive
-
-# Cleanup
-from shutil import rmtree
-
-# Functions:
-#   create_prereq       Creates all the required files and folders
-#   create_folders      Creates the mod folders and required subfolders
-#   create_reqfiles     Creates the required files for a mod to function.
-#   create_thumbnail    Creates a thumbnail file.
-#   zip_stellaris_mod   Turns the mod into a zip
+import shutil
 
 
 def create_prereq(
-    target_folder,  # String - path to where this mod should be generated
-    modname_long,  # String - name of the mod
-    modname_short,  # String - name of the mod, will be used to make the mod's folder
-    mod_versionno="",  # String - version number of the mod (optional)
-    list_dependancies=[],  # List of Strings - Mod dependancies
-    list_tags=[],  # List of Strings - the Steam Workshop tags
-    supported_version="",  # String - supported version of Stellaris
-    thumbnail_file="",  # String - path to thumbnail file if one should be included
+    target_folder: str,
+    modname_long: str,
+    modname_short: str,
+    supported_version: str,
+    dependencies: List[str],
+    tags: List[str],
+    mod_versionno: str = "1.0",
+    thumbnail_file: Optional[str] = None,
 ):
-    # Creates all the prerequisites
-    # Actually calls it's subfunctions
+    """
+    Creates all the prerequisites
+
+    :param target_folder:     Path to where this mod should be generated.
+    :param modname_long:      Name of the mod.
+    :param modname_short:     Name of the mod's folder.
+    :param supported_version: Supported version of Stellaris.
+    :param dependencies:      List of mod names this mod depends on.
+    :param tags:              List of Steam Workshop tags.
+    :param mod_versionno:     Version number of the mod.
+    :param thumbnail_file:    Path to a thumbnail to include.
+    """
 
     # Make target folders first
     create_folders(target_folder, modname_short)
@@ -42,49 +52,60 @@ def create_prereq(
         modname_long,
         modname_short,
         mod_versionno,
-        list_dependancies,
-        list_tags,
         supported_version,
+        dependencies,
+        tags,
     )
 
     # Add thumbnail
-    create_thumbnail(target_folder, modname_short, thumbnail_file)
+    if thumbnail_file:
+        create_thumbnail(target_folder, modname_short, thumbnail_file)
 
-    # END create_prereq
 
+def create_folders(target_folder: str, modname_short: str):
+    """
+    Make the mandatory folders for the mods
 
-def create_folders(
-    target_folder,  # String - path to where this mod should be generated
-    modname_short,  # String - name of the mod, will be used to make the mod's folder
-):
-    # Make the mandatory folders for the mods
+    :param target_folder: Path to where this mod should be generated.
+    :param modname_short: Name of the mod's folder.
+    """
+
     # Folders to make
     mod_dir = target_folder + "/mod/"
     modname_dir = mod_dir + modname_short + "/"
 
     # Make folders  if that folder doesn't exist
-    if not (os.path.isdir(mod_dir)):
+    if not os.path.isdir(mod_dir):
         os.mkdir(mod_dir)
 
-    if not (os.path.isdir(modname_dir)):
+    if not os.path.isdir(modname_dir):
         os.mkdir(modname_dir)
-
-    # END create_folders
 
 
 def create_reqfiles(
-    target_folder,  # String - path to where this mod should be generated
-    modname_long,  # String - name of the mod
-    modname_short,  # String - name of the mod, will be used to make the mod's folder
-    mod_versionno="",  # String - version number of the mod (optional)
-    list_dependancies=[],  # List of Strings - Mod dependancies
-    list_tags=[],  # List of Strings - the Steam Workshop tags
-    supported_version="",  # String - supported version(s) of Stellaris
+    target_folder: str,
+    modname_long: str,
+    modname_short: str,
+    mod_versionno: str,
+    supported_version: str,
+    dependencies: List[str],
+    tags: List[str],
 ):
-    # Creates the prerequisite files
-    # This is only 'modname.mod' and 'descriptor.mod'
-    # Both are being kept identical.
-    # Thus, create modname.mod, copy to descriptor.mod
+    """
+    Creates the prerequisite files
+    This is only 'modname.mod' and 'descriptor.mod'
+    Both are being kept identical.
+    Thus, create modname.mod, copy to descriptor.mod
+
+    :param target_folder:     Path to where this mod should be generated.
+    :param modname_long:      Name of the mod.
+    :param modname_short:     Name of the mod's folder.
+    :param mod_versionno:     Version number of the mod.
+    :param supported_version: Supported version of Stellaris.
+    :param dependencies:      List of mod names this mod depends on.
+    :param tags:              List of Steam Workshop tags.
+    """
+
     mod_dir = target_folder + "/mod/"
     modname_dir = mod_dir + modname_short + "/"
     modname_file = mod_dir + modname_short + ".mod"
@@ -93,6 +114,7 @@ def create_reqfiles(
     # Open Modname
     # Replace any contents
     modname_f = open(modname_file, "w")
+
     # If there are any issues, close file
     try:
         # Element 1 - name
@@ -100,7 +122,7 @@ def create_reqfiles(
         modname_f.write(name_str)
 
         # Element 1b - mod version
-        if len(mod_versionno) > 0:
+        if mod_versionno:
             version_str = 'version="{0}"\n'.format(mod_versionno)
             modname_f.write(version_str)
 
@@ -108,36 +130,29 @@ def create_reqfiles(
         path_str = 'path="mod/{0}"\n'.format(modname_short)
         modname_f.write(path_str)
 
-        # Element 3 - dependancies (Optional)
-        if len(list_dependancies) > 0:
-            modname_f.write("dependancies={\n")
-            for i_item in list_dependancies:
-                modname_f.write('\t"{0}"\n'.format(i_item))
+        # Element 3 - dependencies (Optional)
+        modname_f.write("dependencies={\n")
+        for i_item in dependencies:
+            modname_f.write('\t"{0}"\n'.format(i_item))
 
-            modname_f.write("}\n")
+        modname_f.write("}\n")
 
         # Element 4 - tags
-        if len(list_tags) > 0:
-            modname_f.write("tags={\n")
-            for i_item in list_tags:
-                modname_f.write('\t"{0}"\n'.format(i_item))
+        modname_f.write("tags={\n")
+        for tag in tags:
+            modname_f.write('\t"{0}"\n'.format(tag))
 
-            modname_f.write("}\n")
+        modname_f.write("}\n")
 
         # Element 5 - supported version
-        if len(supported_version) > 0:
-            supported_version_str = 'supported_version="{0}"\n'.format(
-                supported_version
-            )
-            modname_f.write(supported_version_str)
+        buffer_str = f'supported_version="{supported_version}"\n'
+        modname_f.write(buffer_str)
 
     finally:
         modname_f.close()
 
     # Copy modname_file to descrip_file
-    copyfile(modname_file, descrip_file)
-
-    # END create_reqfiles
+    shutil.copyfile(modname_file, descrip_file)
 
 
 def create_thumbnail(
@@ -148,7 +163,7 @@ def create_thumbnail(
     # Should we make the thumbnail?
     file_provided = len(thumbnail_file) > 0
     if file_provided:
-        (a, suffix) = os.path.splitext(thumbnail_file)
+        (_, suffix) = os.path.splitext(thumbnail_file)
         suffix_good = suffix == ".png"
 
         file_exists = os.path.isfile(thumbnail_file)
@@ -162,7 +177,7 @@ def create_thumbnail(
         modname_dir = mod_dir + modname_short + "/"
         mod_thumbnail_filename = modname_dir + "thumbnail.png"
 
-        copyfile(thumbnail_file, mod_thumbnail_filename)
+        shutil.copyfile(thumbnail_file, mod_thumbnail_filename)
 
     # END create_thumbnail
 
@@ -177,7 +192,7 @@ def zip_stellaris_mod(
     # Mod directory (the one we want to zip up)
     mod_dir = target_folder + "/mod/"
 
-    make_archive(mod_zipfile, "zip", mod_dir, ".")
+    shutil.make_archive(mod_zipfile, "zip", mod_dir, ".")
 
     mod_zipefile_true = mod_zipfile + ".zip"
 
@@ -185,13 +200,12 @@ def zip_stellaris_mod(
 
 
 def cleanup_directory(
-    target_folder,  # String - path to where this mod should be generated
-    modname_short,  # String - name of the mod, will be used to make the mod's folder
+    target_folder: str,  # path to where this mod should be generated
 ):
     # Cleans up the directory
     # Deletes mod directory, which contains the modname.mod file and all other files.
     # Warning; this may cleanup unreleated files.
-    mod_dir = target_folder + "/mod/"
+    mod_dir = os.path.join(target_folder, "mod")
 
     if os.path.isdir(mod_dir):
-        rmtree(mod_dir)
+        shutil.rmtree(mod_dir)

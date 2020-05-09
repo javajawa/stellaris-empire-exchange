@@ -26,8 +26,10 @@ class StellarisHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self: StellarisHandler):
         """Serve a GET request."""
 
-        path = urllib.parse.urlparse(self.path).path
+        # Get the actual request path, excluding the query string.
+        path: str = urllib.parse.urlparse(self.path).path
 
+        # Route the request to the handling function
         if path == "/":
             self.page_file("html/upload.html", "text/html")
         elif path == "/upload.js":
@@ -42,74 +44,86 @@ class StellarisHandler(http.server.BaseHTTPRequestHandler):
             self.send_error(404)
 
     def page_file(self: StellarisHandler, filename: str, mime: str):
+        """Sends an on-disk file to the client, with the given mime type"""
+
+        # 404 if the file is not found.
+        if not os.path.exists(filename):
+            self.send_error(404)
+            return
+
         with open(filename, "rb") as contents:
+            # stat(2) the file handle to get the file size.
             stat = os.fstat(contents.fileno())
 
-            self.send_response(200)
-            self.send_header("Content-type", mime)
-            self.send_header("Content-Length", str(stat.st_size))
-            self.end_headers()
+            # Send the HTTP headers.
+            self.success_headers(mime, stat.st_size)
 
+            # Send the file to the client
             shutil.copyfileobj(contents, self.wfile)
 
     def page_ajax_list(self: StellarisHandler, folder: str):
+        """Sends an AJAX fragment listing available files in a folder"""
+
+        # Get the list of files that are in the file.
         files = glob.glob(f"{folder}/**/*.txt")
-        output = []
+        output: List = []
 
         for filename in files:
+            # Parse the Empire in the file.
             with open(filename, "r") as handle:
                 obj = parser.parse(handle)
 
+            # Extract the empire data out of the wrapper object.
             if isinstance(obj, list) and len(obj) == 1:
                 if isinstance(obj[0], tuple):
                     obj = obj[0][1]
 
+            # Get the fields we want in the fragment.
             name = importer.get_value(obj, "key")
             author = importer.get_value(obj, "author")
             ethics = importer.get_values(obj, "ethic")
 
+            # Add to the output list
             output.append({"author": author, "name": name, "ethics": ethics})
 
+        # Convert the list to JSON for JS client.
         jsondata = json.dumps(output).encode("utf-8")
 
-        self.send_response(200)
-        self.send_header("Content-Type", "text/json")
-        self.send_header("Content-Length", str(len(jsondata)))
-        self.end_headers()
-
+        # Send the response
+        self.success_headers("text/json", len(jsondata))
         self.wfile.write(jsondata)
 
     def download_user_empires(self: StellarisHandler):
+        # Parse the query parameters to get the config for the download.
         query = urllib.parse.urlparse(self.path).query
         data = urllib.parse.parse_qs(query)
 
+        # There must be an `empire_count`
         if "empire_count" not in data:
             self.send_error(400)
             return
 
+        #
         count: int = int(data["empire_count"][0])
         unmod: bool = "include_unmoderated" in data
 
+        # Find all possible empires
         files = glob.glob(f"approved/**/*.txt")
-
         if unmod:
             files = files + glob.glob("pending/**/*.txt")
 
+        # Select [count] of them at random.
         files = random.sample(files, min(count, len(files)))
-        length: int = 0
 
-        for filename in files:
-            stat = os.stat(filename)
-            length = length + stat.st_size
+        # Record the Content-Length
+        length: int = sum([os.stat(f).st_size for f in files])
 
-        self.send_response(200)
-        self.send_header("Content-Type", "text/plain")
         self.send_header(
             "Content-Disposition", 'attachment; filename="user_empire_designs.txt"'
         )
-        self.send_header("Content-Length", str(length))
-        self.end_headers()
+        self.success_headers("text/plain", length)
 
+        # Concatenate the files into the output
         for filename in files:
             with open(filename, "rb") as handle:
                 shutil.copyfileobj(handle, self.wfile)
@@ -186,12 +200,14 @@ class StellarisHandler(http.server.BaseHTTPRequestHandler):
 
         report_bytes: bytes = report.encode("utf-8")
 
-        self.send_response(201)
-        self.send_header("Content-Type", "text/plain")
-        self.send_header("Content-Length", str(len(report_bytes)))
-        self.end_headers()
-
+        self.success_headers("text/plain", len(report_bytes), code=201)
         self.wfile.write(report_bytes)
+
+    def success_headers(self: StellarisHandler, mime: str, length: int, code: int = 200):
+        self.send_response(code)
+        self.send_header("Content-Type", mime)
+        self.send_header("Content-Length", str(length))
+        self.end_headers()
 
 
 def main():

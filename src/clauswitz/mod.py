@@ -264,9 +264,9 @@ class ModPack:
             with open(dest, "wb", encoding="utf-8") as dest_handle:
                 dest_handle.write(content.getvalue())
 
-    def write_to_zip(self: ModPack, destination: str) -> None:
+    def write_to_zip(self: ModPack, destination: Union[BytesIO, str]) -> None:
         """
-        Writes the mod folder and description file to a zip file in destnation.
+        Writes the mod folder and description file to a zip file in destination.
         """
 
         with zipfile.ZipFile(
@@ -274,10 +274,9 @@ class ModPack:
         ) as zip_file:
             zip_file.comment = f"{self.name} v{self.version}".encode("utf-8")
 
-            zip_file.writestr(f"{self.short_name}.mod", self.get_metadata())
-            zip_file.writestr(
-                os.path.join(self.short_name, "descriptor.mod"), self.get_metadata()
-            )
+            metadata = self.get_metadata().getvalue()
+            zip_file.writestr(f"{self.short_name}.mod", metadata)
+            zip_file.writestr(os.path.join(self.short_name, "descriptor.mod"), metadata)
 
             for (file_name, source) in self.files_to_add.items():
                 path = os.path.join(self.short_name, file_name)

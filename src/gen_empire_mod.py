@@ -8,139 +8,226 @@ Selection of functions to generate a mod from a user_empire_designs.txt file
 
 from __future__ import annotations
 
-from typing import List
+from typing import Dict, Set, Union
+from io import BytesIO
 
 import os
 import shutil
-import tempfile
-
-# All elements from this is required
-import create_stellaris_prereq
+import zipfile
 
 
-def create_empire_mod(
-    target_folder: str,
-    ued_file: str,
-    modname_long: str,
-    modname_short: str,
-    mod_versionno: str = "",
-    thumbnail_file: str = "",
-    perform_cleanup: bool = True,
-):
-    """Creates a single mod
-
-    This mod takes a single user_empire_designs.txt file and creates the
-    folder structure to use it
-    Returns the name of the zip file created
-
-    :param target_folder:   path to where this mod should be generated
-    :param ued_file:        path to the source user_empire_designs.txt file
-    :param modname_long:    name of the mod
-    :param modname_short:   name of the mod, used in filenames
-    :param mod_versionno:   version number of the mod (optional)
-    :param thumbnail_file:  path to thumbnail file if one should be included
-    :param perform_cleanup: whether to prevent deleting temporary files
+class ModPack:
+    """
+    Describes and builds a ModPack.
     """
 
-    # Define prerequisites: No dependencies
-    list_dependencies: List[str] = []
+    # The display name of the mod.
+    name: str
+    # The short name / folder name of the mod
+    short_name: str
+    # The version number of the mod.
+    version: str
+    # The supported version of stellaris.
+    stellaris_versions: str = "*"
 
-    # Tags: Just changing species
-    list_tags = ["Species"]
+    # List of the mods this mod depends on.
+    dependencies: Set[str]
+    # List of tags for this mod in mod lists (e.g. Steam).
+    tags: Set[str]
 
-    # Requires Stellaris Version: 2.*
-    supported_version = "2.*"
+    # List of existing files to add to the mod pack
+    # { dest filename => source filename }
+    files_to_add: Dict[str, str]
 
-    # Create prerequisites
-    create_stellaris_prereq.create_prereq(
-        target_folder,
-        modname_long,
-        modname_short,
-        mod_versionno,
-        list_dependencies,
-        list_tags,
-        supported_version,
-        thumbnail_file,
-    )
+    # List of files to add to the mod pack from in memory
+    # { dest_filename => buffer }
+    files_to_write: Dict[str, BytesIO]
 
-    # Create folders and insert file
-    insert_empire_file(target_folder, ued_file, modname_short)
+    def __init__(self: ModPack, name: str, short_name: str, version: str):
+        self.name = name
+        self.short_name = short_name
+        self.version = version
 
-    # Turn the mod folder into a zip
-    mod_zipfile = create_stellaris_prereq.zip_stellaris_mod(
-        target_folder, modname_short
-    )
+        self.dependencies = set()
+        self.tags = set()
 
-    # Cleanup created files
-    if perform_cleanup:
-        create_stellaris_prereq.cleanup_directory(target_folder)
+        self.files_to_add = dict()
+        self.files_to_write = dict()
 
-    return mod_zipfile
+    def add_dependency(self: ModPack, dependency: str) -> None:
+        """
+        Adds a dependcent to the Mod's tag list.
+
+        This will tell the launcher that another mod is required for this
+        mod to work.
+
+        :param dependency: The other mod to list.
+        """
+
+        self.dependencies.add(dependency)
+
+    def add_tags(self: ModPack, tag: str) -> None:
+        """
+        Adds a tag to the Mod's tag list.
+
+        Used in the Steam workshop.
+
+        :param tag: The new tag to add.
+        """
+
+        self.tags.add(tag)
+
+    def add_thumbnail(self: ModPack, thumbnail: Union[BytesIO, str]) -> None:
+        """
+        Adds a thumbnail to the mod pack
+
+        :param thumbnail: Either a BytesIO of the raw thumbnail data, or
+                          the path to the thumbnail file.
+        """
+
+        raise Exception("Not yet implemented")
+
+    def normpath(self: ModPack, file_name: str) -> str:
+        """
+        Normalises a path name to be OS-compliant, and remove relative
+        part components.
+
+        Throws an exception if the path is not beneath the current directory.
+
+        :param file_name: The filename
+        :return: The normalised filename
+        """
+
+        file_path = os.path.normpath(file_name)
+
+        if not file_path or file_path.startswith("."):
+            raise Exception(f"Invalid Path: {file_path}")
+
+        return file_path
+
+    def has_file(self: ModPack, file_name: str) -> bool:
+        """
+        Check if a file already exists in the modpack
+
+        :param file_name: The file name/path in the mod pack
+        """
+
+        path = self.normpath(file_name)
+
+        return path in self.files_to_add or path in self.files_to_write
+
+    def add_file(self: ModPack, dest_file: str, source_file: str) -> bool:
+        path = self.normpath(dest_file)
+
+        if self.has_file(path):
+            return False
+
+        if not os.path.exists(source_file):
+            raise Exception(f"File {source_file} does not exist")
+
+        self.files_to_add[path] = source_file
+
+        return True
+
+    def get_file_writer(self: ModPack, dest_file: str) -> BytesIO:
+        path = self.normpath(dest_file)
+
+        if path in self.files_to_add:
+            raise Exception(f"Can not create file {path} that has been added")
+
+        if path not in self.files_to_write:
+            self.files_to_write[path] = BytesIO()
+
+        return self.files_to_write[path]
+
+    def get_metadata(self: ModPack) -> str:
+        return "\n".join(
+            [
+                # Element 1 - Name
+                f'name="{self.name}"',
+                # Element 2 - Version
+                f'version="{self.version}"',
+                # Element 3 - path
+                f'path="mod/{self.short_name}"',
+                # Element 4 - supported version
+                f'supported_version="{self.stellaris_versions}"'
+                # Element 5 - dependencies
+                "dependencies={",
+                "\n".join([f'\t"{dep}"' for dep in self.dependencies]),
+                "}",
+                # Element 6 - tags
+                "tags={",
+                "\n".join([f'\t"{tag}"' for tag in self.tags]),
+                "}",
+                "",
+            ]
+        )
+
+    def write_to_folder(self: ModPack, dest_folder: str) -> None:
+        """
+        Writes the mod folder and description file to dest_folder.
+        """
+
+        mod_folder: str = os.path.join(dest_folder, self.short_name)
+        mod_file: str = os.path.join(dest_folder, f"{self.short_name}.mod")
+
+        os.makedirs(mod_folder, exist_ok=True)
+
+        with open(mod_file, "w", encoding="utf-8") as mod_handle:
+            mod_handle.write("\ufeff")
+            mod_handle.write(self.get_metadata())
+
+        with open(
+            os.path.join(mod_folder, "descriptor.mod"), "w", encoding="utf-8"
+        ) as mod_handle:
+            mod_handle.write("\ufeff")
+            mod_handle.write(self.get_metadata())
+
+        for (file_name, source) in self.files_to_add.items():
+            dest = os.path.join(mod_folder, file_name)
+            dest_dir = os.path.dirname(dest)
+
+            if not os.path.exists(dest_dir):
+                os.makedirs(dest_dir, exist_ok=True)
+
+            shutil.copyfile(source, dest)
+
+        for (file_name, content) in self.files_to_write.items():
+            dest = os.path.join(mod_folder, file_name)
+            dest_dir = os.path.dirname(dest)
+
+            if not os.path.exists(dest_dir):
+                os.makedirs(dest_dir, exist_ok=True)
+
+            with open(dest, "wb", encoding="utf-8") as dest_handle:
+                dest_handle.write(content.getvalue())
+
+    def write_to_zip(self: ModPack, destination: str) -> None:
+        """
+        Writes the mod folder and description file to a zip file in destnation.
+        """
+
+        with zipfile.ZipFile(
+            destination, "w", compression=zipfile.ZIP_LZMA
+        ) as zip_file:
+            zip_file.comment = f"{self.name} v{self.version}".encode("utf-8")
+
+            zip_file.writestr(f"{self.short_name}.mod", self.get_metadata())
+            zip_file.writestr(
+                os.path.join(self.short_name, "descriptor.mod"), self.get_metadata()
+            )
+
+            for (file_name, source) in self.files_to_add.items():
+                path = os.path.join(self.short_name, file_name)
+                zip_file.write(source, path)
+
+            for (file_name, contents) in self.files_to_write.items():
+                path = os.path.join(self.short_name, file_name)
+                zip_file.writestr(path, contents.getvalue())
 
 
-def create_empire_mod_temp(
-    target_folder: str,
-    ued_file: str,
-    modname_long: str,
-    modname_short: str,
-    mod_versionno: str = "",
-    thumbnail_file: str = "",
-):
-    """
-    # Like create_empire_mod but does so into a temp folder
-
-    :param target_folder:  path to where this mod should be generated
-    :param ued_file:       path to the source user_empire_designs.txt file
-    :param modname_long:   name of the mod
-    :param modname_short:  name of the mod, used in filenames
-    :param mod_versionno:  version number of the mod (optional)
-    :param thumbnail_file: path to thumbnail file if one should be included
-    """
-
-    # Create a temporary folder
-    temp_folder = tempfile.mkdtemp()
-
-    # Do all operations as though it were using the temp folder
-    mod_zipfile = create_empire_mod(
-        temp_folder,
-        ued_file,
-        modname_long,
-        modname_short,
-        mod_versionno,
-        thumbnail_file,
-        True,
-    )
-
-    # Copy file to original target_folder
-    new_filename = target_folder + "/" + os.path.split(temp_folder)[1] + ".zip"
-    shutil.copyfile(mod_zipfile, new_filename)
-
-    shutil.rmtree(temp_folder)
-
-    return new_filename
-
-
-def insert_empire_file(target_folder: str, ued_file: str, modname_short: str):
-    """
-    Inserts the empire file into the correct folder
-
-    :param target_folder: path to where this mod should be generated
-    :param ued_file:      path to the source user_empire_designs.txt file
-    :param modname_short: name of the mod, used in filenames
-    """
-
-    # Definitions:
-    mod_dir = target_folder + "/mod/"
-    modname_dir = mod_dir + modname_short + "/"
-
-    # Folder and file for the actual empire name
-    empires_folder = modname_dir + "prescripted_countries/"
-    empires_filename = f"01_{modname_short}_countries.txt"
-    empires_filepath = empires_folder + empires_filename
-
-    # Make the empires_folder
-    if not os.path.isdir(empires_folder):
-        os.mkdir(empires_folder)
-
-    # Copy the file around
-    shutil.copyfile(ued_file, empires_filepath)
+if __name__ == "__main__":
+    mod = ModPack("Test Mod", "test-mod", "0.1")
+    mod.add_file("example/text.txt", "requirements.txt")
+    mod.write_to_folder("mods")
+    mod.write_to_zip("test.zip")

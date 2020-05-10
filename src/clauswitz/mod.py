@@ -285,13 +285,3 @@ class ModPack:
             for (file_name, contents) in self.files_to_write.items():
                 path = os.path.join(self.short_name, file_name)
                 zip_file.writestr(path, contents.getvalue())
-
-
-if __name__ == "__main__":
-    mod = ModPack("Test Mod", "test-mod", "0.1")
-    print(mod.get_metadata())
-    mod.add_tags("Hello")
-    print(mod.get_metadata())
-    mod.add_file("example/text.txt", "requirements.txt")
-    mod.write_to_folder("mods")
-    mod.write_to_zip("test.zip")

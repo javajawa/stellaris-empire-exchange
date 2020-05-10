@@ -74,7 +74,7 @@ def write(data: ClausObject, handle: IO, depth: int = 0):
 def write_literal(value: Union[bool, str, float, int], handle: IO):
     if isinstance(value, bool):
         handle.write("yes" if value else "no")
-    elif isinstance(value, int) or isinstance(value, float):
+    elif isinstance(value, (int, float)):
         handle.write(value)
     else:
         handle.write(f'"{value}"')

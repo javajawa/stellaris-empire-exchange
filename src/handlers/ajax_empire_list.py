@@ -8,9 +8,9 @@ from typing import List
 
 import glob
 import json
-import clauswitz
 import http.server
 
+import clauswitz
 import importer
 
 
@@ -36,7 +36,10 @@ def page_ajax_list(self: http.server.BaseHTTPRequestHandler, folder: str):
         author = importer.get_value(obj, "author")
         ethics = importer.get_values(obj, "ethic")
 
-        ethics = [ethic.replace("ethic_", "").replace("_", " ") for ethic in ethics]
+        # Make the ethics presentable.
+        ethics = [
+            str(ethic).replace("ethic_", "").replace("_", " ") for ethic in ethics
+        ]
 
         # Add to the output list
         output.append({"author": author, "name": name, "ethics": ethics})

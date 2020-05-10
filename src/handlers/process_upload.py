@@ -5,10 +5,11 @@
 from __future__ import annotations
 
 from typing import List
-from clauswitz import ClausObject
 
 import http.server
 import os
+
+from clauswitz import ClausObject
 
 import importer
 

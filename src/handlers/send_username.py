@@ -8,12 +8,12 @@ import http.server
 
 
 def send_username(self: http.server.BaseHTTPRequestHandler, username: str):
-    username = username.encode("utf-8")
+    userbytes = username.encode("utf-8")
 
     self.send_response(200)
     self.send_header("Refresh", "5; url=/")
     self.send_header("Content-Type", "text/plain")
-    self.send_header("Content-Length", str(len(username)))
+    self.send_header("Content-Length", str(len(userbytes)))
     self.end_headers()
 
-    self.wfile.write(username)
+    self.wfile.write(userbytes)

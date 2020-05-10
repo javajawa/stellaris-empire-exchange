@@ -13,17 +13,8 @@ import os
 import importer
 
 
-def process_upload(self: http.server.BaseHTTPRequestHandler, msg: dict):
+def process_upload(self: http.server.BaseHTTPRequestHandler, username: str, msg: dict):
     if "select" not in msg or "file" not in msg or "username" not in msg:
-        self.send_error(415)
-        return
-
-    # Extract the username, create folders
-    username = msg["username"][0]
-    username = username.replace("/", "_")
-    username = username.replace(".", "_")
-
-    if not username:
         self.send_error(415)
         return
 
@@ -68,5 +59,7 @@ def do_import(empires: ClausObject, wanted: List[str], username: str) -> str:
         importer.add_value(empire, "author", username)
         importer.store(empire, f"pending/{username}")
         report += f"Stored {name}\n"
+
+    report += "\nPage will refresh in 5 seconds..."
 
     return report

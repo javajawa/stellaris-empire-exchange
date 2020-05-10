@@ -103,17 +103,22 @@ function processEmpire(text) {
 	));
 }
 
-fetch('/ajax-approved').then(r => r.json())
-	.then(r => r.map(e => li(`${e.name} by ${e.author} [${e.ethics.join(", ")}]`)))
-	.then(r => {
-		const p = document.getElementById('approved');
-		r.forEach(e => p.appendChild(e))
-	}
-);
-fetch('/ajax-pending').then(r => r.json())
-	.then(r => r.map(e => li(`${e.name} by ${e.author} [${e.ethics.join(", ")}]`)))
-	.then(r => {
-		const p = document.getElementById('pending');
-		r.forEach(e => p.appendChild(e))
-	}
-);
+fetch('/username').then(r => r.text()).then(username => {
+    document.getElementById("username").value = username;
+
+    fetch('/ajax-approved').then(r => r.json())
+        .then(r => r.map(e => li(`${e.name} by ${e.author} [${e.ethics.join(", ")}]`)))
+        .then(r => {
+            const p = document.getElementById('approved');
+            r.forEach(e => p.appendChild(e))
+        }
+    );
+
+    fetch('/ajax-pending').then(r => r.json())
+        .then(r => r.map(e => li(`${e.name} by ${e.author} [${e.ethics.join(", ")}]`)))
+        .then(r => {
+            const p = document.getElementById('pending');
+            r.forEach(e => p.appendChild(e))
+        }
+    );
+});

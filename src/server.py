@@ -65,6 +65,8 @@ class StellarisHandler(http.server.BaseHTTPRequestHandler):
             return
 
         username: Optional[bytes] = None
+        handler: Callable
+        need_auth: bool
         params: List[str] = []
         [handler, need_auth, *params] = ROUTING[path]
 
@@ -83,10 +85,7 @@ class StellarisHandler(http.server.BaseHTTPRequestHandler):
             ]
 
         # Call the current request handler.
-        func: Callable = ROUTING[path][0]
-        func(
-            self, *params,
-        )
+        handler(self, *params) # type: ignore
 
     def do_POST(self: StellarisHandler):
         username = self.auth()
@@ -94,8 +93,6 @@ class StellarisHandler(http.server.BaseHTTPRequestHandler):
         if not username:
             self.send_auth_challenge()
             return
-
-        self.username = username.decode("utf-8")
 
         if self.path != "/do-upload":
             self.send_error(405, "Can not post to {self.path}")
@@ -122,7 +119,7 @@ class StellarisHandler(http.server.BaseHTTPRequestHandler):
             self.rfile, {"boundary": bound_bytes, "CONTENT-LENGTH": length_bytes}
         )
 
-        process_upload(self, self.username, msg)
+        process_upload(self, username.decode("utf-8"), msg)
 
     def auth(self) -> Optional[bytes]:
         """Checks if a user is authorised"""

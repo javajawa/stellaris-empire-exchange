@@ -57,6 +57,12 @@ def do_import(empires: ClausObject, wanted: List[str], username: str) -> str:
             report += f"{name} does not appear to be a valid empire?\n"
             continue
 
+        system_type = importer.get_value(empire, "initializer")
+
+        if system_type.starts_with("custom_starting_init_"):
+            importer.remove_values(empire, "initializer")
+            importer.add_value(empire, "initializer", "")
+
         importer.remove_values(empire, "spawn_enabled")
         importer.add_value(empire, "spawn_enabled", "always")
 

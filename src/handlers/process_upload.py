@@ -57,7 +57,21 @@ def do_import(empires: ClausObject, wanted: List[str], username: str) -> str:
             report += f"{name} does not appear to be a valid empire?\n"
             continue
 
+        system_type = importer.get_value(empire, "initializer")
+
+        if str(system_type).startswith("custom_starting_init_"):
+            importer.remove_values(empire, "initializer")
+            importer.add_value(empire, "initializer", "")
+
+        importer.remove_values(empire, "spawn_enabled")
+        importer.add_value(empire, "spawn_enabled", "always")
+
+        importer.remove_values(empire, "spawn_as_fallen")
+        importer.add_value(empire, "spawn_as_fallen", False)
+
+        importer.remove_values(empire, "author")
         importer.add_value(empire, "author", username)
+
         importer.store(empire, f"pending/{username}")
         report += f"Stored {name}\n"
 

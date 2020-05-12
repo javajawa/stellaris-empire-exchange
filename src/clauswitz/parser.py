@@ -61,10 +61,13 @@ def write(data: ClausObject, handle: IO, depth: int = 0):
         handle.write("=")
 
         if isinstance(value, list):
-            handle.write("{\n")
-            write(value, handle, depth + 1)
-            handle.write("\t" * depth)
-            handle.write("}\n")
+            if value:
+                handle.write("{\n")
+                write(value, handle, depth + 1)
+                handle.write("\t" * depth)
+                handle.write("}\n")
+            else:
+                handle.write("{}\n")
 
         else:
             write_literal(value, handle)

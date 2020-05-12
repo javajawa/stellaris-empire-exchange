@@ -269,9 +269,7 @@ class ModPack:
         Writes the mod folder and description file to a zip file in destination.
         """
 
-        with zipfile.ZipFile(
-            destination, "w", compression=zipfile.ZIP_LZMA
-        ) as zip_file:
+        with zipfile.ZipFile(destination, "w") as zip_file:
             zip_file.comment = f"{self.name} v{self.version}".encode("utf-8")
 
             metadata = self.get_metadata().getvalue()

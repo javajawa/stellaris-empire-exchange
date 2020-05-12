@@ -27,7 +27,11 @@
 					<input type="file" name="file" id="upload"/>
 
 					<ul id="list">
-						<p>You can find your user_empire_designs.txt file in [todo].</p>
+						<p>You can find your user_empire_designs.txt file in the following locations:</p>
+						<li><code>%UserProfile%\Documents\Paradox Interactive\Stellaris</code> [Windows]</li>
+						<li><code>$HOME/Documents/Paradox Interactive/Stellaris</code> [Mac]</li>
+						<li><code>$HOME/.local/share/Paradox Interactive/Stellaris</code> [Linux, non-steam]</li>
+						<li><code>$HOME/.steam/steam/userdata/[your-steam-id]/281990/remote</code> [Linux/Steam]</li>
 					</ul>
 				</main>
 				<input id="submit" type="submit" disabled value="Upload"/>
@@ -35,14 +39,32 @@
 		</section>
 
 		<section>
-			<h2>Generate An Empires Mod</h2>
+			<h2>Generate A Random Empires Mod</h2>
 
 			<form method="get" action="/generate">
 				<main>
 					<p>
-						Here you can generate and download an random
-						<code>user_empire_designs.txt</code> to put into your
-						Stellaris folder, and play with other peoples' empires.
+						Here you can generate and download a mod pack with a
+						random selection of empires from the pool.
+					</p>
+					<p>
+						Unzip this in your mod folder, and you should see a
+						file <code>random-empires.mod</code> and a folder
+						<code>random-empires</code>.
+						When you next launch Stellaris, you should be able
+						to enable the "Random Empires Mod" in the mods
+						section of the launcher.
+					</p>
+					<h2>Mod Folder Location</h2>
+					<p>
+						The location of your mod depends on your operating
+						system and how you are running Stellaris.
+						The following are correct for games launched from Steam.
+						<ul>
+							<li><code>%USERPROFILE%\Documents\Paradox Interactive\Stellaris\mod\</code> [Windows]</li>
+							<li><code>~/Documents/Paradox Interactive/Stellaris/mod/</code> [Mac]</li>
+							<li><code>~/.local/share/Paradox Interactive/Stellaris/mod/</code></li>
+						</ul>
 					</p>
 					<p>
 						<label for="empire_count">Number of Empires to include</label>

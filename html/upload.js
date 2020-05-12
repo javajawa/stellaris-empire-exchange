@@ -104,21 +104,35 @@ function processEmpire(text) {
 }
 
 fetch('/username').then(r => r.text()).then(username => {
-    document.getElementById("username").textContent = username;
+	document.getElementById("username").textContent = username;
+	let count = 0;
+	let approved = 0;
 
-    fetch('/ajax-approved').then(r => r.json())
-        .then(r => r.map(e => li(`${e.name} by ${e.author} [${e.ethics.join(", ")}]`)))
-        .then(r => {
-            const p = document.getElementById('approved');
-            r.forEach(e => p.appendChild(e))
-        }
-    );
+	function updateHint() {
+		document.getElementById('empire-count').textContent =
+			count + ", of which " + approved + " moderated.";
+	}
 
-    fetch('/ajax-pending').then(r => r.json())
-        .then(r => r.map(e => li(`${e.name} by ${e.author} [${e.ethics.join(", ")}]`)))
-        .then(r => {
-            const p = document.getElementById('pending');
-            r.forEach(e => p.appendChild(e))
-        }
-    );
+	fetch('/ajax-approved').then(r => r.json())
+		.then(r => r.map(e => li(`${e.name} by ${e.author} [${e.ethics.join(", ")}]`)))
+		.then(r => {
+			const p = document.getElementById('approved');
+			r.forEach(e => p.appendChild(e));
+
+			count += r.length;
+			approved += r.length;
+			updateHint();
+		}
+	);
+
+	fetch('/ajax-pending').then(r => r.json())
+		.then(r => r.map(e => li(`${e.name} by ${e.author} [${e.ethics.join(", ")}]`)))
+		.then(r => {
+			const p = document.getElementById('pending');
+			r.forEach(e => p.appendChild(e));
+
+			count += r.length;
+			updateHint();
+		}
+	);
 });

@@ -9,6 +9,7 @@ from typing import List
 import glob
 import http.server
 import io
+import os
 import random
 import shutil
 import urllib.parse
@@ -36,6 +37,9 @@ def download_user_empires(self: http.server.BaseHTTPRequestHandler):
     writer = mod.get_file_writer("prescripted_countries/99_prescripted_countries.txt")
 
     for filename in files:
+        author = os.path.basename(os.path.dirname(filename)).replace(" ", "_")
+        writer = mod.get_file_writer(f"prescripted_countries/10_{author}.txt")
+
         with open(filename, "rb") as handle:
             shutil.copyfileobj(handle, writer)
 

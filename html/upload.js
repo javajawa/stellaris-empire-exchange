@@ -104,7 +104,7 @@ function processEmpire(text) {
 }
 
 fetch('/username').then(r => r.text()).then(username => {
-    document.getElementById("username").value = username;
+    document.getElementById("username").textContent = username;
 
     fetch('/ajax-approved').then(r => r.json())
         .then(r => r.map(e => li(`${e.name} by ${e.author} [${e.ethics.join(", ")}]`)))

@@ -2,65 +2,70 @@
 <html>
 	<head>
 		<meta charset="utf-8"/>
-		<title>Upload Your Empires</title>
-		<link rel="stylesheet" media="all" href="https://static.harcourtprogramming.co.uk/shared/2018.css" />
+		<title>Stellaris Empire Exchange</title>
+		<link rel="stylesheet" href="/style.css" />
+		<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 	</head>
 	<body>
-		<h1>Stellaris Empire Exchange</h1>
+		<section>
+			<h2>Upload Your Empires</h2>
 
-		<h2>Upload Your Empires</h2>
-		<form action="do-upload" method="post" enctype="multipart/form-data">
-			<label for="username">Username:</label>
-			<input type="text" readonly name="username" id="username"/>
-			<p>
-				<label for="upload">
-					Your <code>user_empire_designs.txt</code>
-				</label>
-				<input type="file" name="file" id="upload"/>
-			</p>
+			<img src="/event-image.jpg" width="560" height="187" />
 
-			<ul id="list">
-				<p>You can find your user_empire_designs.txt file in [todo].</p>
-			</ul>
+			<form action="do-upload" method="post" enctype="multipart/form-data">
+				<main>
+					<p>
+						Welcome <span id="username">???</span>!
+					<p>
 
-			<p>
+					<p>
+						Please insert your
+						<code>user_empire_designs.txt</code>
+						for upload.
+					</p>
+
+					<input type="file" name="file" id="upload"/>
+
+					<ul id="list">
+						<p>You can find your user_empire_designs.txt file in [todo].</p>
+					</ul>
+				</main>
 				<input id="submit" type="submit" disabled value="Upload"/>
-			</p>
-		</form>
-		<p>Uploads works, but can not currently be used for anything</p>
+			</form>
+		</section>
 
-		<hr />
-		<h2>Generate An Empire List</h2>
+		<section>
+			<h2>Generate An Empires Mod</h2>
 
-		<p>
-			Here you can generate and download an random
-			<code>user_empire_designs.txt</code> to put into your Stellaris
-			folder, and play with other peoples' empires.
-		</p>
-		<p>(Note: support to generate a real mod is still in the works)</p>
+			<form method="get" action="/generate">
+				<main>
+					<p>
+						Here you can generate and download an random
+						<code>user_empire_designs.txt</code> to put into your
+						Stellaris folder, and play with other peoples' empires.
+					</p>
+					<p>
+						<label for="empire_count">Number of Empires to include</label>
+						<input id="empire_count" name="empire_count" type="number" min="4" max="80" value="8"/>
+					</p>
+				</main>
+				<p>
+					<input type="submit" name="only_approved" value="Use only verified friends" />
+					<input type="submit" name="include_unmoderated" value="Include unmoderated empires" />
+				</p>
+			</form>
+		</section>
 
-		<form method="get" action="/generate">
-			<p>
-				<label for="empire_count">Number of Empires to include</label>
-				<input id="empire_count" name="empire_count" type="number" min="4" max="80"/>
-			</p>
-			<p>
-				<input type="checkbox" name="include_unmoderated" id="include_unmoderated" />
-				<label for="include_unmoderated">Included Unmoderated Empires</label>
-			</p>
-			<p>
-				<input type="submit" value="Download" />
-			</p>
-		</form>
+		<section>
+			<h2>Visit The Pan-Galactic Forum</h2>
+			<main>
+				<h3>Approved Empires</h3>
+				<ul id="approved"></ul>
 
-		<hr />
-		<h2>Uploaded Empires</h2>
-
-		<h3>Approved Empires</h3>
-		<ul id="approved"></ul>
-
-		<h3>Pending Empires</h3>
-		<ul id="pending"></ul>
+				<h3>Pending Empires</h3>
+				<ul id="pending"></ul>
+			</main>
+		</section>
 
 		<script type="module" src="upload.js" defer></script>
 	</body>

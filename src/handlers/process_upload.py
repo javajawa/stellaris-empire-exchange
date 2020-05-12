@@ -35,7 +35,7 @@ def process_upload(self: http.server.BaseHTTPRequestHandler, username: str, msg:
     report_bytes: bytes = report.encode("utf-8")
 
     self.send_response(201)
-    self.send_header("Refresh", "5; url=/")
+    self.send_header("Refresh", "5; url=/upload")
     self.send_header("Content-Type", "text/plain")
     self.send_header("Content-Length", str(len(report_bytes)))
     self.end_headers()

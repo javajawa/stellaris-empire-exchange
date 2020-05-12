@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Callable, Dict, Optional, Tuple, Union
+from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import base64
 import cgi
@@ -23,55 +23,69 @@ from handlers import (
     send_username,
 )
 
-RouteWithNoArg = Tuple[Callable[[http.server.BaseHTTPRequestHandler], None]]
-RouteWithOneArg = Tuple[Callable[[http.server.BaseHTTPRequestHandler, str], None], str]
+RouteWithNoArg = Tuple[Callable[[http.server.BaseHTTPRequestHandler], None], bool]
+RouteWithOneArg = Tuple[
+    Callable[[http.server.BaseHTTPRequestHandler, str], None], bool, str
+]
 RouteWithTwoArg = Tuple[
-    Callable[[http.server.BaseHTTPRequestHandler, str, str], None], str, str
+    Callable[[http.server.BaseHTTPRequestHandler, str, str], None], bool, str, str
 ]
 
 ROUTING: Dict[str, Union[RouteWithNoArg, RouteWithOneArg, RouteWithTwoArg]] = {
-    "/": (page_file, "html/upload.html", "text/html"),
-    "/upload.js": (page_file, "html/upload.js", "application/javascript"),
-    "/generate": (download_user_empires,),
-    "/ajax-approved": (page_ajax_list, "approved"),
-    "/ajax-pending": (page_ajax_list, "pending"),
-    "/username": (send_username, "$username"),
+    "/": (page_file, False, "html/welcome.html", "text/html"),
+    "/style.css": (page_file, False, "html/style.css", "text/css"),
+    "/event-image.jpg": (page_file, False, "html/event-image.jpg", "image/jpg"),
+    "/event-header.jpg": (page_file, False, "html/event-header.jpg", "image/jpg"),
+    "/upload": (page_file, True, "html/upload.html", "text/html"),
+    "/upload.js": (page_file, True, "html/upload.js", "application/javascript"),
+    "/generate": (download_user_empires, True),
+    "/ajax-approved": (page_ajax_list, True, "approved"),
+    "/ajax-pending": (page_ajax_list, True, "pending"),
+    "/username": (send_username, True, "$username"),
 }
 
 
 class StellarisHandler(http.server.BaseHTTPRequestHandler):
     server_version = "StellarisEmpireSharer"
 
-    username: Optional[str]
-
     def __init__(self, request, client_address, server):
         super().__init__(request, client_address, server)
 
         self.protocol_version = "HTTP/1.1"
-        self.username = None
 
     def do_GET(self: StellarisHandler):
         """Serve a GET request."""
 
-        username = self.auth()
-
-        if not username:
-            self.send_auth_challenge()
-            return
-
-        self.username = username.decode("utf-8")
-
         # Get the actual request path, excluding the query string.
         path: str = urllib.parse.urlparse(self.path).path
 
+        # See if we have a route to the current request
         if path not in ROUTING:
             self.send_error(404)
             return
 
+        username: Optional[bytes] = None
+        params: List[str] = []
+        [handler, need_auth, *params] = ROUTING[path]
+
+        if need_auth:
+            # Get the currently logged in user.
+            username = self.auth()
+
+            # A user must be logged in for everything other than the home page.
+            if not username and path != "/":
+                self.send_auth_challenge()
+                return
+
+        if username:
+            params = [
+                username.decode("utf-8") if x == "$username" else x for x in params
+            ]
+
+        # Call the current request handler.
         func: Callable = ROUTING[path][0]
         func(
-            self,
-            *([self.username if x == "$username" else x for x in ROUTING[path][1:]]),
+            self, *params,
         )
 
     def do_POST(self: StellarisHandler):
@@ -168,7 +182,7 @@ def main():
         if not os.path.exists(folder):
             os.mkdir(folder)
 
-    httpd = http.server.HTTPServer(("", 8000), StellarisHandler)
+    httpd = http.server.ThreadingHTTPServer(("", 8000), StellarisHandler)
     address = httpd.socket.getsockname()
     print(f"Serving HTTP on {address}…")
 

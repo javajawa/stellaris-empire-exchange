@@ -4,3 +4,4 @@
 /pending
 __pycache__
 ssl.cert
+/users.txt

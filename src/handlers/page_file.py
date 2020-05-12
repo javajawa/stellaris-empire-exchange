@@ -25,6 +25,7 @@ def page_file(self: http.server.BaseHTTPRequestHandler, filename: str, mime: str
         self.send_response(200)
         self.send_header("Content-Type", mime)
         self.send_header("Content-Length", str(stat.st_size))
+        self.send_header("Cache-Control", "public; max-age=3600")
         self.end_headers()
 
         # Send the file to the client

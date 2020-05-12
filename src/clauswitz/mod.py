@@ -91,7 +91,7 @@ class ModPack:
 
         self.dependencies.add(dependency)
 
-    def add_tags(self: ModPack, tag: str) -> None:
+    def add_tag(self: ModPack, tag: str) -> None:
         """
         Adds a tag to the Mod's tag list.
 

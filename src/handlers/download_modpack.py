@@ -32,6 +32,7 @@ def download_user_empires(self: http.server.BaseHTTPRequestHandler):
 
     files = select_empires(count, unmod)
     mod = ModPack("Random Empires Modpack", "random-empires", "1.0")
+    mod.add_tag("Species")
     writer = mod.get_file_writer("prescripted_countries/99_prescripted_countries.txt")
 
     for filename in files:

@@ -15,8 +15,8 @@ import importer
 
 
 def process_upload(self: http.server.BaseHTTPRequestHandler, username: str, msg: dict):
-    if "select" not in msg or "file" not in msg or "username" not in msg:
-        self.send_error(415)
+    if "select" not in msg or "file" not in msg:
+        self.send_error(415, "Missing file or empire list in post data")
         return
 
     for folder in ["approved", "pending"]:

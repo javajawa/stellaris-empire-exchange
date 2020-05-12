@@ -23,7 +23,7 @@ def download_user_empires(self: http.server.BaseHTTPRequestHandler):
 
     # There must be an `empire_count`
     if "empire_count" not in data:
-        self.send_error(400)
+        self.send_error(400, "Missing empire count")
         return
 
     # Extract the input data

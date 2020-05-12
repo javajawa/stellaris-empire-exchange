@@ -61,7 +61,7 @@ class StellarisHandler(http.server.BaseHTTPRequestHandler):
 
         # See if we have a route to the current request
         if path not in ROUTING:
-            self.send_error(404)
+            self.send_error(404, "Path not found {path}")
             return
 
         username: Optional[bytes] = None
@@ -98,19 +98,19 @@ class StellarisHandler(http.server.BaseHTTPRequestHandler):
         self.username = username.decode("utf-8")
 
         if self.path != "/do-upload":
-            self.send_error(405)
+            self.send_error(405, "Can not post to {self.path}")
             return
 
         content_type = str(self.headers["content-type"]).strip()
 
         if ";" not in content_type:
-            self.send_error(415)
+            self.send_error(415, f"Invalid Content-Type: {content_type}")
             return
 
         [content_type, boundary] = content_type.split(";")
 
         if content_type.strip() != "multipart/form-data":
-            self.send_error(415)
+            self.send_error(415, f"Invalid Content-Type: {content_type}")
             return
 
         bound_bytes: bytes = boundary.strip().replace("boundary=", "").encode("ascii")

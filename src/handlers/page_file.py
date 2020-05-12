@@ -14,7 +14,7 @@ def page_file(self: http.server.BaseHTTPRequestHandler, filename: str, mime: str
 
     # 404 if the file is not found.
     if not os.path.exists(filename):
-        self.send_error(404)
+        self.send_error(404, "File not found on disk")
         return
 
     with open(filename, "rb") as contents:

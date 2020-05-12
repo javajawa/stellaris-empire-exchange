@@ -31,10 +31,13 @@ def download_user_empires(self: http.server.BaseHTTPRequestHandler):
     count: int = int(data["empire_count"][0])
     unmod: bool = "include_unmoderated" in data
 
-    files = select_empires(count, unmod)
+    # Create the mod pack
     mod = ModPack("Random Empires Modpack", "random-empires", "1.0")
     mod.add_tag("Species")
-    writer = mod.get_file_writer("prescripted_countries/99_prescripted_countries.txt")
+    mod.stellaris_versions = "2.7.*"
+
+    # Add all the empires to the mod pack
+    files = select_empires(count, unmod)
 
     for filename in files:
         author = os.path.basename(os.path.dirname(filename)).replace(" ", "_")
@@ -42,6 +45,19 @@ def download_user_empires(self: http.server.BaseHTTPRequestHandler):
 
         with open(filename, "rb") as handle:
             shutil.copyfileobj(handle, writer)
+
+    # Hide all the other default empires
+    for filename in [
+        "00_top_countries",
+        "88_megacorp_prescripted_countries",
+        "89_humanoids_prescripted_countries",
+        "90_syndaw_prescripted_countries",
+        "91_utopia_prescripted_countries",
+        "92_plantoids_prescripted_countries",
+        "93_lithoids_prescripted_countries",
+        "99_prescripted_countries",
+    ]:
+        mod.get_file_writer(f"prescripted_countries/{filename}.txt")
 
     zip_buffer = io.BytesIO()
     mod.write_to_zip(zip_buffer)

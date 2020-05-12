@@ -75,7 +75,7 @@ def download_user_empires(self: http.server.BaseHTTPRequestHandler):
 
 def select_empires(count: int, unmod: bool) -> List[str]:
     # Find all possible empires
-    files = glob.glob(f"approved/**/*.txt")
+    files = glob.glob("approved/**/*.txt")
 
     if unmod:
         files = files + glob.glob("pending/**/*.txt")

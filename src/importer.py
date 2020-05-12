@@ -85,5 +85,13 @@ def get_value(data: ClausObject, key: str) -> Optional[ClausDatum]:
     return candidates[0]
 
 
-def add_value(data: ClausObject, key: str, value: str):
+def add_value(data: ClausObject, key: str, value: Union[bool, str]):
     data.append((key, value))
+
+
+def is_value(value: ClausDatum, key: str) -> bool:
+    return isinstance(value, tuple) and value[0] == key
+
+
+def remove_values(data: ClausObject, key: str) -> None:
+    data[:] = filter(lambda x: not is_value(x, key), data)

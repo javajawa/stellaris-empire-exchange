@@ -59,7 +59,7 @@ def do_import(empires: ClausObject, wanted: List[str], username: str) -> str:
 
         system_type = importer.get_value(empire, "initializer")
 
-        if system_type.starts_with("custom_starting_init_"):
+        if str(system_type).startswith("custom_starting_init_"):
             importer.remove_values(empire, "initializer")
             importer.add_value(empire, "initializer", "")
 

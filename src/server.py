@@ -85,7 +85,7 @@ class StellarisHandler(http.server.BaseHTTPRequestHandler):
             ]
 
         # Call the current request handler.
-        handler(self, *params) # type: ignore
+        handler(self, *params)  # type: ignore
 
     def do_POST(self: StellarisHandler):
         username = self.auth()

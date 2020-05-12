@@ -83,7 +83,7 @@ function processEmpire(text) {
 	let name = lines[0].trim();
 
 	while (name.endsWith('{') || name.endsWith('=')) {
-		name = name.substring(0, -1).trim();
+		name = name.substring(0, name.length - 1).trim();
 	}
 
 	let ethics = [];

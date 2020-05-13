@@ -38,6 +38,7 @@ ROUTING: Dict[str, Union[RouteWithNoArg, RouteWithOneArg, RouteWithTwoArg]] = {
     "/event-header.jpg": (page_file, False, "html/event-header.jpg", "image/jpg"),
     "/authoritarian.png": (page_file, False, "html/authoritarian.png", "image/png"),
     "/xenophile.png": (page_file, False, "html/xenophile.png", "image/png"),
+    "/egalitarian.png": (page_file, False, "html/egalitarian.png", "image/png"),
     "/upload": (page_file, True, "html/upload.html", "text/html"),
     "/upload.js": (page_file, True, "html/upload.js", "application/javascript"),
     "/generate": (download_user_empires, True),

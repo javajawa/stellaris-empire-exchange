@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import List
+from typing import Dict, List, Set
 
 import glob
 import http.server
@@ -29,7 +29,8 @@ def download_user_empires(self: http.server.BaseHTTPRequestHandler):
 
     # Extract the input data
     count: int = int(data["empire_count"][0])
-    unmod: bool = "include_unmoderated" in data
+    unmod: bool = "include_unmoderated" in data or "all_balanced" in data
+    auths: bool = "balance_authors" in data or "all_balanced" in data
 
     # Create the mod pack
     mod = ModPack("Random Empires Modpack", "random-empires", "1.0")
@@ -37,7 +38,7 @@ def download_user_empires(self: http.server.BaseHTTPRequestHandler):
     mod.stellaris_versions = "2.7.*"
 
     # Add all the empires to the mod pack
-    files = select_empires(count, unmod)
+    files = select_empires(count, unmod, auths)
 
     for filename in files:
         author = os.path.basename(os.path.dirname(filename)).replace(" ", "_")
@@ -73,7 +74,14 @@ def download_user_empires(self: http.server.BaseHTTPRequestHandler):
     shutil.copyfileobj(zip_buffer, self.wfile)
 
 
-def select_empires(count: int, unmod: bool) -> List[str]:
+def select_empires(count: int, unmod: bool, balance_authors: bool) -> List[str]:
+    if balance_authors:
+        return author_balanced_empires(count, unmod)
+    else:
+        return random_empires(count, unmod)
+
+
+def random_empires(count: int, unmod: bool) -> List[str]:
     # Find all possible empires
     files = glob.glob("approved/**/*.txt")
 
@@ -84,3 +92,56 @@ def select_empires(count: int, unmod: bool) -> List[str]:
     files = random.sample(files, min(count, len(files)))
 
     return files
+
+
+def author_balanced_empires(count: int, unmod: bool) -> List[str]:
+    # Find all possible empires
+    files = glob.glob("approved/**/*.txt")
+
+    if unmod:
+        files = files + glob.glob("pending/**/*.txt")
+
+    # Select everything if we have more available than the count.
+    if len(files) >= count:
+        return files
+
+    # Split out the list by author
+    author_map = make_author_map(files)
+
+    # Create a list of authors
+    author_list: List[str] = [a for a in author_map.keys()]
+    selected: Set[str] = set()
+
+    # Build the list of empires.
+    # On each pass, work through the author list in a random
+    # order, selecting up to one empire each.
+    while len(selected) < count:
+        random.shuffle(author_list)
+
+        for author in author_list:
+            empires = author_map[author]
+            random.shuffle(empires)
+
+            for empire in empires:
+                if empire in selected:
+                    continue
+
+                selected.add(empire)
+                break
+
+    return list(selected)
+
+
+def make_author_map(files: List[str]) -> Dict[str, List[str]]:
+    # Split out the list by author
+    author_map: Dict[str, List[str]] = {}
+
+    for filename in files:
+        author = os.path.basename(os.path.dirname(filename))
+
+        if author not in author_map:
+            author_map[author] = []
+
+        author_map[author].append(filename)
+
+    return author_map

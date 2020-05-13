@@ -119,32 +119,38 @@ fetch('/username').then(r => r.text()).then(username => {
 	document.getElementById("username").textContent = username;
 	let count = 0;
 	let approved = 0;
+	let authors = 0;
 
 	function updateHint() {
 		document.getElementById('empire-count').textContent =
-			count + ", of which " + approved + " moderated.";
+			count + ", of which " + approved + " moderated, by "
+			+ authors + " authors.";
 	}
 
 	fetch('/ajax-approved').then(r => r.json())
-		.then(r => r.map(e => li(`${e.name} by ${e.author} [${e.ethics.join(", ")}]`)))
 		.then(r => {
 			const p = document.getElementById('approved');
-			r.forEach(e => p.appendChild(e));
 
 			count += r.length;
 			approved += r.length;
+			authors += r.map(e => e.author).filter((v, k, s) => s.indexOf(v) === k).length;
+
+			const elems = r.map(e => li(`${e.name} by ${e.author} [${e.ethics.join(", ")}]`))
+			elems.forEach(e => p.appendChild(e));
+
 			updateHint();
-		}
-	);
+		});
 
 	fetch('/ajax-pending').then(r => r.json())
-		.then(r => r.map(e => li(`${e.name} by ${e.author} [${e.ethics.join(", ")}]`)))
 		.then(r => {
 			const p = document.getElementById('pending');
-			r.forEach(e => p.appendChild(e));
 
 			count += r.length;
+			authors += r.map(e => e.author).filter((v, k, s) => s.indexOf(v) === k).length;
+
+			const elems = r.map(e => li(`${e.name} by ${e.author} [${e.ethics.join(", ")}]`))
+			elems.forEach(e => p.appendChild(e));
+
 			updateHint();
-		}
-	);
+		});
 });

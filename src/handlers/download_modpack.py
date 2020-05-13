@@ -115,7 +115,7 @@ def author_balanced_empires(count: int, unmod: bool) -> List[str]:
     # Build the list of empires.
     # On each pass, work through the author list in a random
     # order, selecting up to one empire each.
-    while len(selected) < count:
+    while True:
         random.shuffle(author_list)
 
         for author in author_list:
@@ -129,7 +129,8 @@ def author_balanced_empires(count: int, unmod: bool) -> List[str]:
                 selected.add(empire)
                 break
 
-    return list(selected)
+            if len(selected) >= count:
+                return list(selected)
 
 
 def make_author_map(files: List[str]) -> Dict[str, List[str]]:

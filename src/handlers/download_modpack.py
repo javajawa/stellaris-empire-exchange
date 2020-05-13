@@ -102,7 +102,7 @@ def author_balanced_empires(count: int, unmod: bool) -> List[str]:
         files = files + glob.glob("pending/**/*.txt")
 
     # Select everything if we have more available than the count.
-    if len(files) >= count:
+    if len(files) <= count:
         return files
 
     # Split out the list by author

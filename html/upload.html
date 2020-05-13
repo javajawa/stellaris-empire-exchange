@@ -34,7 +34,9 @@
 						<li><code>$HOME/.steam/steam/userdata/[your-steam-id]/281990/remote</code> [Linux/Steam]</li>
 					</ul>
 				</main>
-				<input id="submit" type="submit" disabled value="Upload"/>
+				<button id="submit" type="submit" disabled>
+					Upload
+				</button>
 			</form>
 		</section>
 
@@ -73,8 +75,29 @@
 					</p>
 				</main>
 				<p>
-					<input type="submit" name="only_approved" value="Use only verified friends" />
-					<input type="submit" name="include_unmoderated" value="Include unmoderated empires" />
+					<button
+						name="only_approved" value="on"
+						style="--image: url(/authoritarian.png)"
+					>
+						Use only verified friends
+						<span>
+							A modpack will be created using only using empires
+							that have been verified and tested for the supported
+							version (2.7).
+						</span>
+					</button>
+
+					<button
+						name="include_unmoderated" value="on"
+						style="--image: url(/xenophile.png)"
+					>
+						Include unmoderated empires
+
+						<span>
+							Empires are chosen at random from the entire pool.<br/>
+							This may lead to compatibility issues.
+						</span>
+					</button>
 				</p>
 			</form>
 		</section>

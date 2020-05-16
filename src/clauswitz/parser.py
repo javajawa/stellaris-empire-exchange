@@ -79,7 +79,7 @@ def write_literal(value: Union[bool, str, float, int], handle: IO):
         handle.write("yes" if value else "no")
     elif isinstance(value, (int, float)):
         handle.write(value)
-    elif value in ["male", "female"]:
+    elif value in ["male", "female", "always"]:
         handle.write(value)
     else:
         handle.write(f'"{value}"')

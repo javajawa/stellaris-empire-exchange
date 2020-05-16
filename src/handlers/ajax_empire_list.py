@@ -36,13 +36,18 @@ def page_ajax_list(self: http.server.BaseHTTPRequestHandler, folder: str):
         author = importer.get_value(obj, "author")
         ethics = importer.get_values(obj, "ethic")
 
+        bio = None
+        species = importer.get_value(obj, "species")
+        if isinstance(species, list):
+            bio = importer.get_value(species, "species_bio")
+
         # Make the ethics presentable.
         ethics = [
             str(ethic).replace("ethic_", "").replace("_", " ") for ethic in ethics
         ]
 
         # Add to the output list
-        output.append({"author": author, "name": name, "ethics": ethics})
+        output.append({"author": author, "name": name, "ethics": ethics, "bio": bio})
 
     # Convert the list to JSON for JS client.
     json_data = json.dumps(output).encode("utf-8")

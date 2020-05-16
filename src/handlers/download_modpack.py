@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Set
+from typing import Dict, List, Optional, Set
 
 import glob
 import http.server
@@ -12,9 +12,11 @@ import io
 import os
 import random
 import shutil
+import textwrap
 import urllib.parse
 
-from clauswitz import ModPack
+import clauswitz
+import importer
 
 
 def download_user_empires(self: http.server.BaseHTTPRequestHandler):
@@ -33,19 +35,14 @@ def download_user_empires(self: http.server.BaseHTTPRequestHandler):
     auths: bool = "balance_authors" in data or "all_balanced" in data
 
     # Create the mod pack
-    mod = ModPack("Random Empires Modpack", "random-empires", "1.0")
+    mod = clauswitz.ModPack("Random Empires Modpack", "random-empires", "1.0")
     mod.add_tag("Species")
     mod.stellaris_versions = "2.7.*"
 
     # Add all the empires to the mod pack
     files = select_empires(count, unmod, auths)
-
     for filename in files:
-        author = os.path.basename(os.path.dirname(filename)).replace(" ", "_")
-        writer = mod.get_file_writer(f"prescripted_countries/10_{author}.txt")
-
-        with open(filename, "rb") as handle:
-            shutil.copyfileobj(handle, writer)
+        add_empire_to_modpack(mod, filename)
 
     # Hide all the other default empires
     for filename in [
@@ -146,3 +143,37 @@ def make_author_map(files: List[str]) -> Dict[str, List[str]]:
         author_map[author].append(filename)
 
     return author_map
+
+
+def add_empire_to_modpack(mod: clauswitz.ModPack, filename: str) -> None:
+    # Prepare a file for all the species info
+    bios = mod.get_file_writer("species.txt")
+
+    with open(filename, "rb") as empire_file:
+        empire = importer.parse(empire_file)
+
+        if isinstance(empire, list) and len(empire):
+            empire = empire[0]
+
+        if isinstance(empire, tuple) and isinstance(empire[1], list):
+            empire = empire[1]
+
+        bio: Optional[str] = None
+        name = importer.get_value(empire, "key")
+        author = importer.get_value(empire, "author")
+        species = importer.get_value(empire, "species")
+
+        if isinstance(species, list):
+            bio = importer.get_value(species, "species_bio")
+
+        # Write the file contents into the mod pack
+        writer = mod.get_file_writer(f"prescripted_countries/10_{author}.txt")
+        empire_file.seek(0, io.SEEK_SET)
+        shutil.copyfileobj(empire_file, writer)
+
+        # Write the species info into the data file.
+        header = f"{name} by {author}"
+        bios.write(header.encode("utf-8"))
+        bios.write(b"\n" + (b"=" * len(header)) + b"\n\n")
+        bios.write(textwrap.fill(bio, 60).encode("utf-8") if bio else b"[No Description Provided]")
+        bios.write(b"\n\n")

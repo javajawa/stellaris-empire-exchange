@@ -16,6 +16,9 @@ def parse(handle: IO) -> ClausObject:
     while True:
         line = handle.readline()
 
+        if isinstance(line, bytes):
+            line = line.decode("utf-8")
+
         if line == "":
             break
 

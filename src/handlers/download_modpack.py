@@ -116,9 +116,7 @@ def author_balanced_empires(count: int, unmod: bool) -> List[str]:
         random.shuffle(author_list)
 
         for author in author_list:
-            empires = author_map[author]
-            random.shuffle(empires)
-
+            empires = shuffle_empires(author_map[author])
             for empire in empires:
                 if empire in selected:
                     continue
@@ -143,6 +141,18 @@ def make_author_map(files: List[str]) -> Dict[str, List[str]]:
         author_map[author].append(filename)
 
     return author_map
+
+
+def shuffle_empires(empires: List[str]) -> List[str]:
+    # We shuffle the list of empires but
+    # make sure that approved ones are used first.
+    approved = [x for x in empires if x.startswith("approved/")]
+    pending = [x for x in empires if x.startswith("pending/")]
+
+    random.shuffle(approved)
+    random.shuffle(pending)
+
+    return approved + pending
 
 
 def add_empire_to_modpack(mod: clauswitz.ModPack, filename: str) -> None:

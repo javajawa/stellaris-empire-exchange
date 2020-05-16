@@ -126,10 +126,6 @@ def author_balanced_empires(count: int, unmod: bool) -> List[str]:
             for empire in empires:
                 empire_name = os.path.basename(empire)
 
-                # Don't reimport the same file.
-                if empire in selected:
-                    continue
-
                 # Having two empires with the same key breaks things.
                 if empire_name in selected_names:
                     continue
@@ -178,7 +174,7 @@ def add_empire_to_modpack(mod: clauswitz.ModPack, filename: str) -> None:
         empire = importer.parse(empire_file)
 
         if isinstance(empire, list) and len(empire):
-            empire = empire[0]
+            empire = empire[0]  # type: ignore
 
         if isinstance(empire, tuple) and isinstance(empire[1], list):
             empire = empire[1]
@@ -200,5 +196,9 @@ def add_empire_to_modpack(mod: clauswitz.ModPack, filename: str) -> None:
         header = f"{name} by {author}"
         bios.write(header.encode("utf-8"))
         bios.write(b"\n" + (b"=" * len(header)) + b"\n\n")
-        bios.write(textwrap.fill(bio, 60).encode("utf-8") if bio else b"[No Description Provided]")
+        bios.write(
+            textwrap.fill(bio, 60).encode("utf-8")
+            if bio
+            else b"[No Description Provided]"
+        )
         bios.write(b"\n\n")

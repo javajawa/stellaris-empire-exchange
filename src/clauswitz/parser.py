@@ -19,12 +19,9 @@ def parse(handle: IO) -> ClausObject:
         if isinstance(line, bytes):
             line = line.decode("utf-8")
 
-        if line == "":
-            break
-
         line = line.strip()
 
-        if line == "}":
+        if line in ["", "}"]:
             break
 
         if "=" not in line:

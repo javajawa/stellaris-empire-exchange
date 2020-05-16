@@ -119,12 +119,14 @@ fetch('/username').then(r => r.text()).then(username => {
 	document.getElementById("username").textContent = username;
 	let count = 0;
 	let approved = 0;
-	let authors = 0;
+	let authors = [];
 
 	function updateHint() {
 		document.getElementById('empire-count').textContent =
 			count + ", of which " + approved + " moderated, by "
-			+ authors + " authors.";
+			+ authors.length + " authors.";
+	}
+
 	}
 
 	fetch('/ajax-approved').then(r => r.json())
@@ -133,7 +135,7 @@ fetch('/username').then(r => r.text()).then(username => {
 
 			count += r.length;
 			approved += r.length;
-			authors += r.map(e => e.author).filter((v, k, s) => s.indexOf(v) === k).length;
+			authors = authors.concat(r.map(e => e.author)).filter((v, k, s) => s.indexOf(v) === k);
 
 			const elems = r.map(e => li(`${e.name} by ${e.author} [${e.ethics.join(", ")}]`))
 			elems.forEach(e => p.appendChild(e));
@@ -146,7 +148,7 @@ fetch('/username').then(r => r.text()).then(username => {
 			const p = document.getElementById('pending');
 
 			count += r.length;
-			authors += r.map(e => e.author).filter((v, k, s) => s.indexOf(v) === k).length;
+			authors = authors.concat(r.map(e => e.author)).filter((v, k, s) => s.indexOf(v) === k);
 
 			const elems = r.map(e => li(`${e.name} by ${e.author} [${e.ethics.join(", ")}]`))
 			elems.forEach(e => p.appendChild(e));

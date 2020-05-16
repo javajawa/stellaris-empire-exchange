@@ -10,6 +10,8 @@ const reader = new FileReader();
 const li     = elemGenerator('li');
 const label  = elemGenerator('label');
 const input  = elemGenerator('input');
+const image  = elemGenerator('img');
+const span   = elemGenerator('span');
 
 upload.addEventListener('change', e => reader.readAsText(upload.files[0]));
 list.addEventListener('change', e => {
@@ -127,6 +129,20 @@ fetch('/username').then(r => r.text()).then(username => {
 			+ authors.length + " authors.";
 	}
 
+	function showEmpire(e) {
+		return li(
+			e.ethics.map(ethic =>
+				image({
+					src: `/${ethic.replace(' ', '_')}.png`,
+					width: 12, height: 12, alt: ethic, title: ethic,
+					style: "margin: 0 1px;"
+				})
+			),
+			" ",
+			span(e.name, {"class": "highlight", "title": e.bio}),
+			" by ",
+			span(e.author, {"class": "highlight"})
+		);
 	}
 
 	fetch('/ajax-approved').then(r => r.json())
@@ -137,8 +153,7 @@ fetch('/username').then(r => r.text()).then(username => {
 			approved += r.length;
 			authors = authors.concat(r.map(e => e.author)).filter((v, k, s) => s.indexOf(v) === k);
 
-			const elems = r.map(e => li(`${e.name} by ${e.author} [${e.ethics.join(", ")}]`))
-			elems.forEach(e => p.appendChild(e));
+			r.map(showEmpire).forEach(e => p.appendChild(e));
 
 			updateHint();
 		});
@@ -150,8 +165,7 @@ fetch('/username').then(r => r.text()).then(username => {
 			count += r.length;
 			authors = authors.concat(r.map(e => e.author)).filter((v, k, s) => s.indexOf(v) === k);
 
-			const elems = r.map(e => li(`${e.name} by ${e.author} [${e.ethics.join(", ")}]`))
-			elems.forEach(e => p.appendChild(e));
+			r.map(showEmpire).forEach(e => p.appendChild(e));
 
 			updateHint();
 		});

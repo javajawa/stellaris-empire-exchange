@@ -108,6 +108,7 @@ def author_balanced_empires(count: int, unmod: bool) -> List[str]:
     # Create a list of authors
     author_list: List[str] = [a for a in author_map.keys()]
     selected: Set[str] = set()
+    selected_names: Set[str] = set()
 
     # Build the list of empires.
     # On each pass, work through the author list in a random
@@ -115,15 +116,29 @@ def author_balanced_empires(count: int, unmod: bool) -> List[str]:
     while True:
         random.shuffle(author_list)
 
+        # Attempt to add an empire for each Author
         for author in author_list:
+
+            # For this author, shuffle their empire list
             empires = shuffle_empires(author_map[author])
+
+            # Then add the first valid empire in the shuffled list.
             for empire in empires:
+                empire_name = os.path.basename(empire)
+
+                # Don't reimport the same file.
                 if empire in selected:
                     continue
 
+                # Having two empires with the same key breaks things.
+                if empire_name in selected_names:
+                    continue
+
                 selected.add(empire)
+                selected_names.add(empire_name)
                 break
 
+            # If we have enough empires, stop.
             if len(selected) >= count:
                 return list(selected)
 

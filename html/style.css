@@ -13,12 +13,17 @@ p
 	margin: 0 0 10px;
 }
 
-h1, h2, h3, code
+h1, h2, h3, code, .highlight
 {
 	font-weight: normal;
 	font-size: 14px;
 	color: #c4cac8;
 	font-weight: 700;
+}
+
+.highlight
+{
+	cursor: pointer;
 }
 
 section
@@ -76,6 +81,11 @@ button[disabled] {
 	text-decoration: line-through;
 }
 
+section a:hover, button:not([disabled]):hover {
+	background: #144;
+	background: linear-gradient(to bottom, #033 0%,#144 50%, #244 100%);
+}
+
 button[style]:before {
 	position: absolute;
 	left: 5px;
@@ -102,11 +112,6 @@ button[style]:after {
 
 section a:visited {
 	color: #c4cac8;
-}
-
-section a:hover, button:hover {
-	background: #144;
-	background: linear-gradient(to bottom, #033 0%,#144 50%, #244 100%);
 }
 
 section main input {

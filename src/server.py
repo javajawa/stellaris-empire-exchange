@@ -103,6 +103,7 @@ ROUTING: Dict[str, Union[RouteWithNoArg, RouteWithOneArg, RouteWithTwoArg]] = {
     "/username": (send_username, True, "$username"),
     "/ajax-approved": (page_ajax_list, True, "approved"),
     "/ajax-pending": (page_ajax_list, True, "pending"),
+    "/ajax-historical": (page_ajax_list, True, "historical"),
     "/generate": (download_user_empires, True),
 }
 
@@ -237,7 +238,7 @@ def main():
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
     os.chdir("..")
 
-    for folder in ["approved", "pending"]:
+    for folder in ["approved", "pending", "historical"]:
         if not os.path.exists(folder):
             os.mkdir(folder)
 

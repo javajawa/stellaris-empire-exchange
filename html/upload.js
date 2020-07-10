@@ -169,4 +169,17 @@ fetch('/username').then(r => r.text()).then(username => {
 
 			updateHint();
 		});
+
+
+	fetch('/ajax-historical').then(r => r.json())
+		.then(r => {
+			const p = document.getElementById('historical');
+
+			count += r.length;
+			authors = authors.concat(r.map(e => e.author)).filter((v, k, s) => s.indexOf(v) === k);
+
+			r.map(showEmpire).forEach(e => p.appendChild(e));
+
+			updateHint();
+		});
 });

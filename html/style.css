@@ -1,4 +1,4 @@
-body, input, button
+body, input, button, section
 {
 	background: black;
 	font-family: 'Montserrat', sans-serif;
@@ -28,7 +28,7 @@ h1, h2, h3, code, .highlight
 
 section
 {
-	width: 600px;
+	width: 640px;
 	margin: 0 auto;
 	background: #101614;
 	padding: 10px 20px 20px;
@@ -36,6 +36,14 @@ section
 	background-image: url("/event-header.jpg");
 	background-size: 100%;
 	background-repeat: no-repeat;
+}
+
+@media(max-width: 640px)
+{
+	section
+	{
+		width: 100%;
+	}
 }
 
 section>h1:first-child, section>h2:first-child {
@@ -48,7 +56,7 @@ section>h1:first-child, section>h2:first-child {
 }
 
 section>img {
-	margin-left: 15px;
+	margin-left: 20px;
 }
 
 section main

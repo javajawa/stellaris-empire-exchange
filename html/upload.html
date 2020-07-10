@@ -1,16 +1,18 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
 		<meta charset="utf-8"/>
 		<title>Stellaris Empire Exchange</title>
 		<link rel="stylesheet" href="/style.css" />
+		<meta name="description" content="Stellaris Empire Exchange" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3.0, minimum-scale=1">
 		<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 	</head>
 	<body>
 		<section>
 			<h2>Upload Your Empires</h2>
 
-			<img src="/event-image.jpg" width="560" height="187" />
+			<img src="/event-image.jpg" width="560" height="187" alt="Tribe crossing the plains" />
 
 			<form action="do-upload" method="post" enctype="multipart/form-data">
 				<main>
@@ -31,10 +33,10 @@
 						for upload.
 					</p>
 
-					<input type="file" name="file" id="upload"/>
+					<label for="upload">&gt; </label><input type="file" name="file" id="upload"/>
 
 					<ul id="list">
-						<p>You can find your user_empire_designs.txt file in the following locations:</p>
+						<li>You can find your user_empire_designs.txt file in the following locations:</;i>
 						<li><code>%UserProfile%\Documents\Paradox Interactive\Stellaris</code> [Windows]</li>
 						<li><code>$HOME/Documents/Paradox Interactive/Stellaris</code> [Mac]</li>
 						<li><code>$HOME/.local/share/Paradox Interactive/Stellaris</code> [Linux, non-steam]</li>

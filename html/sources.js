@@ -79,7 +79,6 @@ async function loadSources(sources)
 {
 	for (let source of sources)
 	{
-		console.log(source);
 		const empires = await fetch("/ajax/" + source.source).then(r => r.json());
 
 		handleSource(source, empires);

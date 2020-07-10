@@ -36,10 +36,8 @@ def parse(handle: IO) -> ClausObject:
 
         if value == "{":
             value = parse(handle)
-        elif value == "yes":
-            value = True
-        elif value == "no":
-            value = False
+        elif value in ["yes", "no"]:
+            value = value == "yes"
         else:
             value = value.strip('"')
 

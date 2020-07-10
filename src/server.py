@@ -242,7 +242,7 @@ def main():
         if not os.path.exists(folder):
             os.mkdir(folder)
 
-    httpd = http.server.ThreadingHTTPServer(("", 8000), StellarisHandler)
+    httpd = http.server.ThreadingHTTPServer(("", 8080), StellarisHandler)
     address = httpd.socket.getsockname()
     print(f"Serving HTTP on {address}…")
 

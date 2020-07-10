@@ -14,6 +14,13 @@
 
 			<form action="do-upload" method="post" enctype="multipart/form-data">
 				<main>
+					<p class="highlight">
+						Uploads for the game beginning July 10th have closed!
+					</p>
+					<p>
+						You are welcome to still upload your empire to the
+						community, but they will not appear in the game.
+					</p>
 					<p>
 						Welcome <span id="username">???</span>!
 					<p>
@@ -72,36 +79,26 @@
 						Empires Available: <span id="empire-count">[Please Wait]</span><br/>
 						<label for="empire_count">Number of Empires to include</label>
 						<input id="empire_count" name="empire_count" type="number" min="4" max="80" value="8"/>
+						<ul id="sources">
+						</ul>
 					</p>
 				</main>
 				<p>
 					<button
-						name="only_approved" value="on"
-						style="--image: url(/authoritarian.png)"
+						name="balance_authors" value="off"
+						style="--image: url(/ethic/xenophile.png)"
 					>
-						Use only verified friends
-						<span>
-							A modpack will be created using only using empires
-							that have been verified and tested for the supported
-							version (2.7).
-						</span>
-					</button>
-
-					<button
-						name="include_unmoderated" value="on"
-						style="--image: url(/xenophile.png)"
-					>
-						Include unmoderated empires
+						Form a Council by Lottery
 
 						<span>
-							Empires are chosen at random from the entire pool.<br/>
-							This may lead to compatibility issues.
+							Empires are chosen at random from the entire pool,
+							based on the sources you selected above.
 						</span>
 					</button>
 
 					<button
 						name="balance_authors" value="on"
-						style="--image: url(/egalitarian.png); --image-alt: url(/authoritarian.png)"
+						style="--image: url(/ethic/egalitarian.png);"
 					>
 						Balance Authors
 
@@ -111,37 +108,17 @@
 							site.
 						</span>
 					</button>
-
-					<button
-						name="all_balanced" value="on"
-						style="--image: url(/egalitarian.png); --image-alt: url(/xenophile.png)"
-					>
-						Balance Authors and Include Unmoderated
-
-						<span>
-							The number of empires in your mod pack is equally
-							divided between each of the people who have to the
-							site, including all empires that have not been approved.
-						</span>
-					</button>
 				</p>
 			</form>
 		</section>
 
 		<section>
 			<h2>Visit The Pan-Galactic Forum</h2>
-			<main>
-				<h3>Empires Currently in Council</h3>
-				<ul id="approved"></ul>
-
-				<h3>Empires Awaiting Membership</h3>
-				<ul id="pending"></ul>
-
-				<h3>Empires from Previous Councils</h3>
-				<ul id="historical"></ul>
+			<main id="listings">
 			</main>
 		</section>
 
-		<script type="module" src="upload.js" defer></script>
+		<script type="module" src="/upload.js" defer></script>
+		<script type="module" src="/sources.js" defer></script>
 	</body>
 </html>

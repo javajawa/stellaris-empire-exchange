@@ -140,3 +140,18 @@ section a:hover>span, button:hover>span {
 	display: block;
 }
 
+li>input[type="checkbox"] {
+	margin-left: -20px;
+	margin-right: 2px;
+}
+
+#listings>h3, #listings>p {
+	margin-left: 1em;
+	margin-right: 1em;
+}
+
+#listings>h3:not(:first-child) {
+	margin-top: 1em;
+	padding-top: 1em;
+	border-top: 1px solid #72b89c;
+}

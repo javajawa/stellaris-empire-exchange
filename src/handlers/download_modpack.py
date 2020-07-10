@@ -29,18 +29,29 @@ def download_user_empires(self: http.server.BaseHTTPRequestHandler):
         self.send_error(400, "Missing empire count")
         return
 
+    # There must be an `empire_count`
+    if "sources" not in data:
+        self.send_error(400, "No sources selected")
+        return
+
     # Extract the input data
     count: int = int(data["empire_count"][0])
-    unmod: bool = "include_unmoderated" in data or "all_balanced" in data
-    auths: bool = "balance_authors" in data or "all_balanced" in data
+    balance: bool = (data.get("balance_authors") or ["off"])[0] == "on"
+    sources: List[str] = data.get("sources") or []
 
     # Create the mod pack
     mod = clauswitz.ModPack("Random Empires Modpack", "random-empires", "1.0")
     mod.add_tag("Species")
     mod.stellaris_versions = "2.7.*"
 
+    # Select the empires for the modpack
+    files = select_empires(count, sources, balance)
+
+    # Log for debugging
+    self.log_message("Input: %d, %s, %s", count, balance, sources)
+    self.log_message("Output: %s", files)
+
     # Add all the empires to the mod pack
-    files = select_empires(count, unmod, auths)
     for filename in files:
         add_empire_to_modpack(mod, filename)
 
@@ -71,33 +82,29 @@ def download_user_empires(self: http.server.BaseHTTPRequestHandler):
     shutil.copyfileobj(zip_buffer, self.wfile)
 
 
-def select_empires(count: int, unmod: bool, balance_authors: bool) -> List[str]:
-    if balance_authors:
-        return author_balanced_empires(count, unmod)
-    else:
-        return random_empires(count, unmod)
-
-
-def random_empires(count: int, unmod: bool) -> List[str]:
+def select_empires(count: int, sources: List[str], balance_authors: bool) -> List[str]:
     # Find all possible empires
-    files = glob.glob("approved/**/*.txt")
+    files: List[str] = []
 
-    if unmod:
-        files = files + glob.glob("pending/**/*.txt")
+    for source in sources:
+        files = files + glob.glob(f"{source}/**/*.txt")
 
+    if balance_authors:
+        return author_balanced_empires(count, files, sources)
+    else:
+        return random_empires(count, files)
+
+
+def random_empires(count: int, files: List[str]) -> List[str]:
     # Select [count] of them at random.
     files = random.sample(files, min(count, len(files)))
 
     return files
 
 
-def author_balanced_empires(count: int, unmod: bool) -> List[str]:
-    # Find all possible empires
-    files = glob.glob("approved/**/*.txt")
-
-    if unmod:
-        files = files + glob.glob("pending/**/*.txt")
-
+def author_balanced_empires(
+    count: int, files: List[str], sources: List[str]
+) -> List[str]:
     # Select everything if we have more available than the count.
     if len(files) <= count:
         return files
@@ -120,7 +127,7 @@ def author_balanced_empires(count: int, unmod: bool) -> List[str]:
         for author in author_list:
 
             # For this author, shuffle their empire list
-            empires = shuffle_empires(author_map[author])
+            empires = shuffle_empires(author_map[author], sources)
 
             # Then add the first valid empire in the shuffled list.
             for empire in empires:
@@ -154,16 +161,20 @@ def make_author_map(files: List[str]) -> Dict[str, List[str]]:
     return author_map
 
 
-def shuffle_empires(empires: List[str]) -> List[str]:
+def shuffle_empires(empires: List[str], sources: List[str]) -> List[str]:
     # We shuffle the list of empires but
-    # make sure that approved ones are used first.
-    approved = [x for x in empires if x.startswith("approved/")]
-    pending = [x for x in empires if x.startswith("pending/")]
+    # make sure that they are loaded in source order.
+    output: List[str] = []
 
-    random.shuffle(approved)
-    random.shuffle(pending)
+    for source in sources:
+        sublist = [x for x in empires if x.startswith(source + "/")]
+        random.shuffle(sublist)
+        output = output + sublist
 
-    return approved + pending
+    dangling = [x for x in empires if x not in output]
+    random.shuffle(dangling)
+
+    return output + dangling
 
 
 def add_empire_to_modpack(mod: clauswitz.ModPack, filename: str) -> None:

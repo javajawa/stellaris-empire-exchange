@@ -1,32 +1,30 @@
-'use strict';
+"use strict";
 
-import { elemGenerator } from 'https://javajawa.github.io/elems.js/elems.js';
+import { elemGenerator } from "https://javajawa.github.io/elems.js/elems.js";
 
-const upload = document.getElementById('upload');
-const list   = document.getElementById('list');
-const submit = document.getElementById('submit');
+const upload = document.getElementById("upload");
+const list   = document.getElementById("list");
+const submit = document.getElementById("submit");
 const reader = new FileReader();
 
-const li     = elemGenerator('li');
-const label  = elemGenerator('label');
-const input  = elemGenerator('input');
-const image  = elemGenerator('img');
-const span   = elemGenerator('span');
+const input  = elemGenerator("input");
+const label  = elemGenerator("label");
+const li     = elemGenerator("li");
 
-upload.addEventListener('change', e => reader.readAsText(upload.files[0]));
-list.addEventListener('change', e => {
+upload.addEventListener("change", e => reader.readAsText(upload.files[0]));
+list.addEventListener("change", e => {
 	submit.setAttribute("disabled", "");
-	list.querySelectorAll('input').forEach(i => {
+	list.querySelectorAll("input").forEach(i => {
 		i.checked && submit.removeAttribute("disabled")
 	});
 });
-reader.addEventListener('load', processEmpires);
+reader.addEventListener("load", processEmpires);
 
 
-document.addEventListener('mouseover', e => {
+document.addEventListener("mouseover", e => {
 	if (e.target.tagName !== "BUTTON") return;
 
-	const tooltip = e.target.querySelector('span');
+	const tooltip = e.target.querySelector("span");
 
 	if (!tooltip) return;
 
@@ -46,7 +44,7 @@ function processEmpires()
 	// Offset where the current empire starts.
 	let start  = 0;
 	// Offset we have read up to.
-	let offset = data.indexOf('{');
+	let offset = data.indexOf("{");
 	// The nesting level of `{}` we're at.
 	let depth  = 1;
 	// Where the next `{` and `}` are.
@@ -54,8 +52,8 @@ function processEmpires()
 
 	while (true) {
 		// Find the next braces.
-		nextOpen  = data.indexOf('{', offset + 1);
-		nextClose = data.indexOf('}', offset + 1);
+		nextOpen  = data.indexOf("{", offset + 1);
+		nextClose = data.indexOf("}", offset + 1);
 
 		// If no more braces, we're done
 		if (nextOpen === -1 && nextClose === -1) {
@@ -96,90 +94,27 @@ function processEmpire(text) {
 
 	let name = lines[0].trim();
 
-	while (name.endsWith('{') || name.endsWith('=')) {
+	while (name.endsWith("{") || name.endsWith("=")) {
 		name = name.substring(0, name.length - 1).trim();
 	}
 
 	let ethics = [];
 
 	lines.map(line => line.trim())
-		.filter(line => line.startsWith('ethic'))
-		.map(line => line.replace(/^ethic=\"/, ''))
-		.map(line => line.replace(/^ethic_/, ''))
-		.map(line => line.replace('_', ' '))
-		.map(line => line.replace(/"$/, ''))
+		.filter(line => line.startsWith("ethic"))
+		.map(line => line.replace(/^ethic=\"/, ""))
+		.map(line => line.replace(/^ethic_/, ""))
+		.map(line => line.replace("_", " "))
+		.map(line => line.replace(/"$/, ""))
 		.forEach(line => ethics.push(line))
 	;
 
 	list.appendChild(li(
 		input({id: name, type: "checkbox", name: "select", value: name}),
-		label({"for": name}, name + ' [' + ethics.join(", ") + ']')
+		label({"for": name}, name + " [" + ethics.join(", ") + "]")
 	));
 }
 
-fetch('/username').then(r => r.text()).then(username => {
+fetch("/username").then(r => r.text()).then(username => {
 	document.getElementById("username").textContent = username;
-	let count = 0;
-	let approved = 0;
-	let authors = [];
-
-	function updateHint() {
-		document.getElementById('empire-count').textContent =
-			count + ", of which " + approved + " moderated, by "
-			+ authors.length + " authors.";
-	}
-
-	function showEmpire(e) {
-		return li(
-			e.ethics.map(ethic =>
-				image({
-					src: `/${ethic.replace(' ', '_')}.png`,
-					width: 12, height: 12, alt: ethic, title: ethic,
-					style: "margin: 0 1px;"
-				})
-			),
-			" ",
-			span(e.name, {"class": "highlight", "title": e.bio}),
-			" by ",
-			span(e.author, {"class": "highlight"})
-		);
-	}
-
-	fetch('/ajax-approved').then(r => r.json())
-		.then(r => {
-			const p = document.getElementById('approved');
-
-			count += r.length;
-			approved += r.length;
-			authors = authors.concat(r.map(e => e.author)).filter((v, k, s) => s.indexOf(v) === k);
-
-			r.map(showEmpire).forEach(e => p.appendChild(e));
-
-			updateHint();
-		});
-
-	fetch('/ajax-pending').then(r => r.json())
-		.then(r => {
-			const p = document.getElementById('pending');
-
-			count += r.length;
-			authors = authors.concat(r.map(e => e.author)).filter((v, k, s) => s.indexOf(v) === k);
-
-			r.map(showEmpire).forEach(e => p.appendChild(e));
-
-			updateHint();
-		});
-
-
-	fetch('/ajax-historical').then(r => r.json())
-		.then(r => {
-			const p = document.getElementById('historical');
-
-			count += r.length;
-			authors = authors.concat(r.map(e => e.author)).filter((v, k, s) => s.indexOf(v) === k);
-
-			r.map(showEmpire).forEach(e => p.appendChild(e));
-
-			updateHint();
-		});
 });

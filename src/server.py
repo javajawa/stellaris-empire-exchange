@@ -8,12 +8,14 @@ from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import base64
 import cgi
-import http.server
 import os
 import ssl
 import urllib.parse
 
 import bcrypt  # type: ignore
+
+from http.server import ThreadingHTTPServer
+from http.server import BaseHTTPRequestHandler as Handler
 
 from handlers import (
     download_user_empires,
@@ -23,92 +25,31 @@ from handlers import (
     send_username,
 )
 
-RouteWithNoArg = Tuple[Callable[[http.server.BaseHTTPRequestHandler], None], bool]
-RouteWithOneArg = Tuple[
-    Callable[[http.server.BaseHTTPRequestHandler, str], None], bool, str
-]
-RouteWithTwoArg = Tuple[
-    Callable[[http.server.BaseHTTPRequestHandler, str, str], None], bool, str, str
-]
+RouteWithNoArg = Tuple[Callable[[Handler], None], bool]
+RouteWithOneArg = Tuple[Callable[[Handler, str], None], bool, str]
+RouteWithTwoArg = Tuple[Callable[[Handler, str, str], None], bool, str, str]
 
-ROUTING: Dict[str, Union[RouteWithNoArg, RouteWithOneArg, RouteWithTwoArg]] = {
+Route = Union[RouteWithNoArg, RouteWithOneArg, RouteWithTwoArg]
+
+ROUTING: Dict[str, Route] = {
     "/": (page_file, False, "html/welcome.html", "text/html"),
-    "/style.css": (page_file, False, "html/style.css", "text/css"),
-    "/event-image.jpg": (page_file, False, "html/event-image.jpg", "image/jpg"),
-    "/event-header.jpg": (page_file, False, "html/event-header.jpg", "image/jpg"),
-    "/gestalt_consciousness.png": (
-        page_file,
-        False,
-        "html/gestalt_consciousness.png",
-        "image/png",
-    ),
-    "/authoritarian.png": (page_file, False, "html/authoritarian.png", "image/png"),
-    "/egalitarian.png": (page_file, False, "html/egalitarian.png", "image/png"),
-    "/materialist.png": (page_file, False, "html/materialist.png", "image/png"),
-    "/militarist.png": (page_file, False, "html/militarist.png", "image/png"),
-    "/pacifist.png": (page_file, False, "html/pacifist.png", "image/png"),
-    "/spiritualist.png": (page_file, False, "html/spiritualist.png", "image/png"),
-    "/xenophile.png": (page_file, False, "html/xenophile.png", "image/png"),
-    "/xenophobe.png": (page_file, False, "html/xenophobe.png", "image/png"),
-    "/fanatic_authoritarian.png": (
-        page_file,
-        False,
-        "html/fanatic_authoritarian.png",
-        "image/png",
-    ),
-    "/fanatic_egalitarian.png": (
-        page_file,
-        False,
-        "html/fanatic_egalitarian.png",
-        "image/png",
-    ),
-    "/fanatic_materialist.png": (
-        page_file,
-        False,
-        "html/fanatic_materialist.png",
-        "image/png",
-    ),
-    "/fanatic_militarist.png": (
-        page_file,
-        False,
-        "html/fanatic_militarist.png",
-        "image/png",
-    ),
-    "/fanatic_pacifist.png": (
-        page_file,
-        False,
-        "html/fanatic_pacifist.png",
-        "image/png",
-    ),
-    "/fanatic_spiritualist.png": (
-        page_file,
-        False,
-        "html/fanatic_spiritualist.png",
-        "image/png",
-    ),
-    "/fanatic_xenophile.png": (
-        page_file,
-        False,
-        "html/fanatic_xenophile.png",
-        "image/png",
-    ),
-    "/fanatic_xenophobe.png": (
-        page_file,
-        False,
-        "html/fanatic_xenophobe.png",
-        "image/png",
-    ),
     "/upload": (page_file, True, "html/upload.html", "text/html"),
-    "/upload.js": (page_file, True, "html/upload.js", "application/javascript"),
-    "/username": (send_username, True, "$username"),
-    "/ajax-approved": (page_ajax_list, True, "approved"),
-    "/ajax-pending": (page_ajax_list, True, "pending"),
-    "/ajax-historical": (page_ajax_list, True, "historical"),
     "/generate": (download_user_empires, True),
+    "/username": (send_username, True, "$user"),
+    "/sources-list": (page_file, True, "sources.json", "application_json"),
+    "/upload.js": (page_file, True, "html/upload.js", "application/javascript"),
+    "/sources.js": (page_file, True, "html/sources.js", "application/javascript"),
+    "/style.css": (page_file, False, "html/style.css", "text/css"),
+}
+
+PREFIX_ROUTING: Dict[str, Route] = {
+    "/ethic/": (page_file, False, "2", "image/png"),
+    "/event-": (page_file, False, "1", "image/jpg"),
+    "/ajax/": (page_ajax_list, True, "2"),
 }
 
 
-class StellarisHandler(http.server.BaseHTTPRequestHandler):
+class StellarisHandler(Handler):
     server_version = "StellarisEmpireSharer"
 
     def __init__(self, request, client_address, server):
@@ -123,15 +64,17 @@ class StellarisHandler(http.server.BaseHTTPRequestHandler):
         path: str = urllib.parse.urlparse(self.path).path
 
         # See if we have a route to the current request
-        if path not in ROUTING:
-            self.send_error(404, "Path not found {path}")
+        route: Optional[Route] = self.route(path)
+
+        if not route:
+            self.send_error(404, f"Path not found {path}")
             return
 
         username: Optional[bytes] = None
         handler: Callable
         need_auth: bool
         params: List[str] = []
-        [handler, need_auth, *params] = ROUTING[path]
+        [handler, need_auth, *params] = route
 
         if need_auth:
             # Get the currently logged in user.
@@ -142,13 +85,26 @@ class StellarisHandler(http.server.BaseHTTPRequestHandler):
                 self.send_auth_challenge()
                 return
 
-        if username:
-            params = [
-                username.decode("utf-8") if x == "$username" else x for x in params
-            ]
+        # Sub in path elements in params.
+        segments = path.split("/")
+        params = [segments[int(x)] if x.isnumeric() else x for x in params]
+
+        # Sub in username in params
+        user = username.decode("utf-8") if username else ""
+        params = [user if x == "$user" else x for x in params]
 
         # Call the current request handler.
         handler(self, *params)  # type: ignore
+
+    def route(self: StellarisHandler, path: str) -> Optional[Route]:
+        if path in ROUTING:
+            return ROUTING[path]
+
+        for prefix in PREFIX_ROUTING:
+            if path.startswith(prefix):
+                return PREFIX_ROUTING[prefix]
+
+        return None
 
     def do_POST(self: StellarisHandler):
         username = self.auth()
@@ -242,7 +198,7 @@ def main():
         if not os.path.exists(folder):
             os.mkdir(folder)
 
-    httpd = http.server.ThreadingHTTPServer(("", 8080), StellarisHandler)
+    httpd = ThreadingHTTPServer(("", 8080), StellarisHandler)
     address = httpd.socket.getsockname()
     print(f"Serving HTTP on {address}…")
 

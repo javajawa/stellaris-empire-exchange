@@ -1,7 +1,11 @@
 *.pyc
 /.mypy_cache
 /approved
+/conflicts
+/historical
 /pending
+/serge-game-2020-05-13
 __pycache__
 ssl.cert
 /users.txt
+/sources.json

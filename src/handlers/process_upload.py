@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import List
+from typing import Dict, List
 
 import http.server
 import os
@@ -13,8 +13,12 @@ from clauswitz import ClausObject
 
 import importer
 
+PostData = Dict[str, List[bytes]]
 
-def process_upload(self: http.server.BaseHTTPRequestHandler, username: str, msg: dict):
+
+def process_upload(
+    self: http.server.BaseHTTPRequestHandler, username: str, msg: PostData
+) -> None:
     if "select" not in msg or "file" not in msg:
         self.send_error(415, "Missing file or empire list in post data")
         return
@@ -28,7 +32,7 @@ def process_upload(self: http.server.BaseHTTPRequestHandler, username: str, msg:
     empires = importer.parse_user_empires(upload)
 
     # Get the list of empires we want to import
-    wanted: List[str] = [t.strip().strip('"') for t in msg["select"]]
+    wanted: List[str] = [str(t).strip().strip('"') for t in msg["select"]]
 
     report = do_import(empires, wanted, username)
 
@@ -46,7 +50,7 @@ def process_upload(self: http.server.BaseHTTPRequestHandler, username: str, msg:
 def do_import(empires: ClausObject, wanted: List[str], username: str) -> str:
     report: str = "Attempt Upload " + ", ".join(wanted) + ".\n\n"
 
-    for name, empire in empires:
+    for name, empire in empires:  # type: ignore
         if name not in wanted:
             continue
 

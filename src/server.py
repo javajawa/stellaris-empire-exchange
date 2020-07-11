@@ -25,9 +25,15 @@ from handlers import (
     send_username,
 )
 
-RouteWithNoArg = Tuple[Callable[[Handler], None], bool]
-RouteWithOneArg = Tuple[Callable[[Handler, str], None], bool, str]
-RouteWithTwoArg = Tuple[Callable[[Handler, str, str], None], bool, str, str]
+HandlerWithNoArg = Callable[[Handler], None]
+HandlerWithOneArg = Callable[[Handler, str], None]
+HandlerWithTwoArgs = Callable[[Handler, str, str], None]
+
+Handlers = Union[HandlerWithNoArg, HandlerWithOneArg, HandlerWithTwoArgs]
+
+RouteWithNoArg = Tuple[HandlerWithNoArg, bool]
+RouteWithOneArg = Tuple[HandlerWithOneArg, bool, str]
+RouteWithTwoArg = Tuple[HandlerWithTwoArgs, bool, str, str]
 
 Route = Union[RouteWithNoArg, RouteWithOneArg, RouteWithTwoArg]
 
@@ -52,13 +58,9 @@ PREFIX_ROUTING: Dict[str, Route] = {
 
 class StellarisHandler(Handler):
     server_version = "StellarisEmpireSharer"
+    protocol_version = "HTTP/1.1"
 
-    def __init__(self, request, client_address, server):
-        super().__init__(request, client_address, server)
-
-        self.protocol_version = "HTTP/1.1"
-
-    def do_GET(self: StellarisHandler):
+    def do_GET(self: StellarisHandler) -> None:
         """Serve a GET request."""
 
         # Get the actual request path, excluding the query string.
@@ -72,7 +74,7 @@ class StellarisHandler(Handler):
             return
 
         username: Optional[bytes] = None
-        handler: Callable
+        handler: Handlers
         need_auth: bool
         params: List[str] = []
         [handler, need_auth, *params] = route
@@ -95,7 +97,7 @@ class StellarisHandler(Handler):
         params = [user if x == "$user" else x for x in params]
 
         # Call the current request handler.
-        handler(self, *params)  # type: ignore
+        handler(self, *params)
 
     def route(self: StellarisHandler, path: str) -> Optional[Route]:
         if path in ROUTING:
@@ -107,7 +109,7 @@ class StellarisHandler(Handler):
 
         return None
 
-    def do_POST(self: StellarisHandler):
+    def do_POST(self: StellarisHandler) -> None:
         username = self.auth()
 
         if not username:
@@ -144,7 +146,7 @@ class StellarisHandler(Handler):
     def auth(self) -> Optional[bytes]:
         """Checks if a user is authorised"""
 
-        auth: bytes = self.headers["authorization"]  # type: ignore
+        auth: bytes = self.headers["authorization"]
 
         if not auth:
             print("No auth header")
@@ -191,7 +193,7 @@ class StellarisHandler(Handler):
         self.wfile.write(b"Hello")
 
 
-def main():
+def main() -> None:
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
     os.chdir("..")
 

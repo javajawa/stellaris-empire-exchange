@@ -7,7 +7,7 @@ from __future__ import annotations
 import http.server
 
 
-def send_username(self: http.server.BaseHTTPRequestHandler, username: str):
+def send_username(self: http.server.BaseHTTPRequestHandler, username: str) -> None:
     userbytes = username.encode("utf-8")
 
     self.send_response(200)

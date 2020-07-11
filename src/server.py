@@ -40,6 +40,7 @@ ROUTING: Dict[str, Route] = {
     "/upload.js": (page_file, True, "html/upload.js", "application/javascript"),
     "/sources.js": (page_file, True, "html/sources.js", "application/javascript"),
     "/style.css": (page_file, False, "html/style.css", "text/css"),
+    "/menu.png": (page_file, False, "html/menu.png", "image/png"),
 }
 
 PREFIX_ROUTING: Dict[str, Route] = {

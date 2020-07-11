@@ -71,4 +71,4 @@ jobs:
 
         prettier:      true
         prettier_dir:  html
-        prettier_args: --use-tabs
+        prettier_args: --use-tabs --arrow-parens avoid --trailing-comma none

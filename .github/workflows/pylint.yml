@@ -26,7 +26,7 @@ jobs:
       run:  pip install -r requirements.txt
 
     - name: Install Linters
-      run:  pip install flake8 mypy black
+      run:  pip install flake8 mypy==0.770 black
 
     - name: Run Linters
       uses: samuelmeuli/lint-action@v1

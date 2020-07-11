@@ -9,8 +9,8 @@ on:
       - master
 
 jobs:
-  lint:
-    name: Run Linters
+  python-lint:
+    name: Run Python Linters
     runs-on: ubuntu-latest
 
     steps:
@@ -42,3 +42,33 @@ jobs:
 
         mypy:     true
         mypy_dir: src
+        mypy_args: --strict
+
+  es-lint:
+    name: Run JS Linters
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup NodeJS 12
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12
+
+    - name: Install Linters
+      run:  npm install eslint prettier
+
+    - name: Run Linters
+      uses: samuelmeuli/lint-action@v1
+      with:
+        github_token: ${{ secrets.github_token }}
+
+        eslint:      true
+        eslint_dir:  html
+        eslint_args: --max-warnings 0
+
+        prettier:      true
+        prettier_dir:  html
+        prettier_args: --use-tabs --arrow-parens avoid --trailing-comma none

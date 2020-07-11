@@ -11,7 +11,9 @@ import shutil
 import time
 
 
-def page_file(self: http.server.BaseHTTPRequestHandler, filename: str, mime: str):
+def page_file(
+    self: http.server.BaseHTTPRequestHandler, filename: str, mime: str
+) -> None:
     """Sends an on-disk file to the client, with the given mime type"""
 
     # 404 if the file is not found.

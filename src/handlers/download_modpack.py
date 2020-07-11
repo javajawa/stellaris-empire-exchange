@@ -19,7 +19,7 @@ import clauswitz
 import importer
 
 
-def download_user_empires(self: http.server.BaseHTTPRequestHandler):
+def download_user_empires(self: http.server.BaseHTTPRequestHandler) -> None:
     # Parse the query parameters to get the config for the download.
     query = urllib.parse.urlparse(self.path).query
     data = urllib.parse.parse_qs(query)
@@ -182,7 +182,7 @@ def add_empire_to_modpack(mod: clauswitz.ModPack, filename: str) -> None:
     bios = mod.get_file_writer("species.txt")
 
     with open(filename, "rb") as empire_file:
-        empire = importer.parse(empire_file)
+        empire = clauswitz.parser.parse(empire_file)
 
         if isinstance(empire, list) and len(empire):
             empire = empire[0]  # type: ignore

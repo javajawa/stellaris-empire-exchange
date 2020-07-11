@@ -6,11 +6,11 @@ from __future__ import annotations
 
 from typing import Any, IO, List, Tuple, Union
 
-ClausDatum = Union[str, Tuple[str, Any]]
+ClausDatum = Union[str, bool, Tuple[str, Any]]
 ClausObject = List[ClausDatum]
 
 
-def parse(handle: IO) -> ClausObject:
+def parse(handle: Union[IO[bytes], IO[str]]) -> ClausObject:
     output: ClausObject = []
 
     while True:
@@ -33,21 +33,22 @@ def parse(handle: IO) -> ClausObject:
             continue
 
         key, value = line.split("=", 1)
+        n_value: Union[ClausDatum, ClausObject]
 
         if value == "{":
-            value = parse(handle)
+            n_value = parse(handle)
         elif value in ["yes", "no"]:
-            value = value == "yes"
+            n_value = value == "yes"
         else:
-            value = value.strip('"')
+            n_value = value.strip('"')
 
         key = key.strip('"')
-        output.append((key, value,))
+        output.append((key, n_value,))
 
     return output
 
 
-def write(data: ClausObject, handle: IO, depth: int = 0):
+def write(data: ClausObject, handle: IO[str], depth: int = 0) -> None:
     for item in data:
         handle.write("\t" * depth)
 
@@ -75,11 +76,11 @@ def write(data: ClausObject, handle: IO, depth: int = 0):
             handle.write("\n")
 
 
-def write_literal(value: Union[bool, str, float, int], handle: IO):
+def write_literal(value: Union[bool, str, float, int], handle: IO[str]) -> None:
     if isinstance(value, bool):
         handle.write("yes" if value else "no")
     elif isinstance(value, (int, float)):
-        handle.write(value)
+        handle.write(str(value))
     elif value in ["male", "female", "always"]:
         handle.write(value)
     else:

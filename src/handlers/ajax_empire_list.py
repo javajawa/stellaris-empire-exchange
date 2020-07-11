@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from typing import List
+from typing_extensions import TypedDict
 
 import glob
 import json
@@ -14,12 +15,17 @@ import clauswitz
 import importer
 
 
-def page_ajax_list(self: http.server.BaseHTTPRequestHandler, folder: str):
+EmpireData = TypedDict(
+    "EmpireData", {"author": str, "name": str, "ethics": List[str], "bio": str}
+)
+
+
+def page_ajax_list(self: http.server.BaseHTTPRequestHandler, folder: str) -> None:
     """Sends an AJAX fragment listing available files in a folder"""
 
     # Get the list of files that are in the file.
     files = glob.glob(f"{folder}/**/*.txt")
-    output: List = []
+    output: List[EmpireData] = []
 
     for filename in files:
         # Parse the Empire in the file.
@@ -32,22 +38,22 @@ def page_ajax_list(self: http.server.BaseHTTPRequestHandler, folder: str):
                 obj = obj[0][1]
 
         # Get the fields we want in the fragment.
-        name = importer.get_value(obj, "key")
-        author = importer.get_value(obj, "author")
+        name = str(importer.get_value(obj, "key"))
+        author = str(importer.get_value(obj, "author"))
         ethics = importer.get_values(obj, "ethic")
 
-        bio = None
+        bio = ""
         species = importer.get_value(obj, "species")
         if isinstance(species, list):
-            bio = importer.get_value(species, "species_bio")
+            bio = str(importer.get_value(species, "species_bio"))
 
         # Make the ethics presentable.
-        ethics = [
+        ethics_out = [
             str(ethic).replace("ethic_", "").replace("_", " ") for ethic in ethics
         ]
 
         # Add to the output list
-        output.append({"author": author, "name": name, "ethics": ethics, "bio": bio})
+        output.append(EmpireData(author=author, name=name, ethics=ethics_out, bio=bio))
 
     # Convert the list to JSON for JS client.
     json_data = json.dumps(output).encode("utf-8")

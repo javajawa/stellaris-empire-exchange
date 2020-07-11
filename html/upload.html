@@ -1,26 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<meta charset="utf-8"/>
+		<meta charset="utf-8" />
 		<title>Stellaris Empire Exchange</title>
 		<link rel="stylesheet" href="/style.css" />
 		<meta name="description" content="Stellaris Empire Exchange" />
-		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3.0, minimum-scale=1">
-		<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1, maximum-scale=3.0, minimum-scale=1"
+		/>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap"
+			rel="stylesheet"
+		/>
 	</head>
 	<body>
 		<nav>
-			<a style="--image: url(/ethic/fanatic_materialist.png)" href="#_upload">
+			<a style="--image: url(/ethic/fanatic_materialist.png);" href="#_upload">
 				<span>Submit Empires</span>
 			</a>
-			<a style="--image: url(/ethic/gestalt_consciousness.png)" href="#_download">
+			<a
+				style="--image: url(/ethic/gestalt_consciousness.png);"
+				href="#_download"
+			>
 				<span>Download a Pack</span>
 			</a>
 		</nav>
 		<section id="_upload">
 			<h2>Upload Your Empires</h2>
 
-			<img src="/event-image.jpg" width="560" height="187" alt="Tribe crossing the plains" />
+			<img
+				src="/event-image.jpg"
+				width="560"
+				height="187"
+				alt="Tribe crossing the plains"
+			/>
 
 			<form action="do-upload" method="post" enctype="multipart/form-data">
 				<main>
@@ -28,12 +42,11 @@
 						Uploads for the game beginning July 10th have closed!
 					</p>
 					<p>
-						You are welcome to still upload your empire to the
-						community, but they will not appear in the game.
+						You are welcome to still upload your empire to the community, but
+						they will not appear in the game.
 					</p>
-					<p>
-						Welcome <span id="username">???</span>!
-					<p>
+
+					<p>Welcome <span id="username">???</span>!</p>
 
 					<p>
 						Please insert your
@@ -41,14 +54,31 @@
 						for upload.
 					</p>
 
-					<label for="upload">&gt; </label><input type="file" name="file" id="upload"/>
+					<label for="upload">&gt; </label>
+					<input type="file" name="file" id="upload" />
 
 					<ul id="list">
-						<li>You can find your user_empire_designs.txt file in the following locations:</;i>
-						<li><code>%UserProfile%\Documents\Paradox Interactive\Stellaris</code> [Windows]</li>
-						<li><code>$HOME/Documents/Paradox Interactive/Stellaris</code> [Mac]</li>
-						<li><code>$HOME/.local/share/Paradox Interactive/Stellaris</code> [Linux, non-steam]</li>
-						<li><code>$HOME/.steam/steam/userdata/[your-steam-id]/281990/remote</code> [Linux/Steam]</li>
+						<li>
+							You can find your user_empire_designs.txt file in the following
+							locations:
+						</li>
+						<li>
+							<code>%UserProfile%\Documents\Paradox Interactive\Stellaris</code>
+							[Windows]
+						</li>
+						<li>
+							<code>$HOME/Documents/Paradox Interactive/Stellaris</code> [Mac]
+						</li>
+						<li>
+							<code>$HOME/.local/share/Paradox Interactive/Stellaris</code>
+							[Linux, non-steam]
+						</li>
+						<li>
+							<code>
+								$HOME/.steam/steam/userdata/[your-steam-id]/281990/remote
+							</code>
+							[Linux/Steam]
+						</li>
 					</ul>
 				</main>
 				<button id="submit" type="submit" disabled>
@@ -63,59 +93,77 @@
 			<form method="get" action="/generate">
 				<main>
 					<p>
-						Here you can generate and download a mod pack with a
-						random selection of empires from the pool.
+						Here you can generate and download a mod pack with a random
+						selection of empires from the pool.
 					</p>
 					<p>
-						Unzip this in your mod folder, and you should see a
-						file <code>random-empires.mod</code> and a folder
-						<code>random-empires</code>.
-						When you next launch Stellaris, you should be able
-						to enable the "Random Empires Mod" in the mods
+						Unzip this in your mod folder, and you should see a file
+						<code>random-empires.mod</code> and a folder
+						<code>random-empires</code>. When you next launch Stellaris, you
+						should be able to enable the "Random Empires Mod" in the mods
 						section of the launcher.
 					</p>
 					<h2>Mod Folder Location</h2>
 					<p>
-						The location of your mod depends on your operating
-						system and how you are running Stellaris.
-						The following are correct for games launched from Steam.
-						<ul>
-							<li><code>%USERPROFILE%\Documents\Paradox Interactive\Stellaris\mod\</code> [Windows]</li>
-							<li><code>~/Documents/Paradox Interactive/Stellaris/mod/</code> [Mac]</li>
-							<li><code>~/.local/share/Paradox Interactive/Stellaris/mod/</code></li>
-						</ul>
+						The location of your mod depends on your operating system and how
+						you are running Stellaris. The following are correct for games
+						launched from Steam.
 					</p>
+					<ul>
+						<li>
+							<code
+								>%USERPROFILE%\Documents\Paradox
+								Interactive\Stellaris\mod\</code
+							>
+							[Windows]
+						</li>
+						<li>
+							<code>~/Documents/Paradox Interactive/Stellaris/mod/</code> [Mac]
+						</li>
+						<li>
+							<code>~/.local/share/Paradox Interactive/Stellaris/mod/</code>
+							[Linux]
+						</li>
+					</ul>
 					<p>
-						Empires Available: <span id="empire-count">[Please Wait]</span><br/>
+						Empires Available: <span id="empire-count">[Please Wait]</span
+						><br />
 						<label for="empire_count">Number of Empires to include</label>
-						<input id="empire_count" name="empire_count" type="number" min="4" max="80" value="8"/>
-						<ul id="sources">
-						</ul>
+						<input
+							id="empire_count"
+							name="empire_count"
+							type="number"
+							min="4"
+							max="80"
+							value="8"
+						/>
 					</p>
+					<ul id="sources"></ul>
 				</main>
 				<p>
 					<button
-						name="balance_authors" value="off"
-						style="--image: url(/ethic/xenophile.png)"
+						name="balance_authors"
+						value="off"
+						style="--image: url(/ethic/xenophile.png);"
 					>
 						Form a Council by Lottery
 
 						<span>
-							Empires are chosen at random from the entire pool,
-							based on the sources you selected above.
+							Empires are chosen at random from the entire pool, based on the
+							sources you selected above.
 						</span>
 					</button>
 
 					<button
-						name="balance_authors" value="on"
+						name="balance_authors"
+						value="on"
 						style="--image: url(/ethic/egalitarian.png);"
 					>
 						Balance Authors
 
 						<span>
-							The number of empires in your mod pack is equally
-							divided between each of the people who have to the
-							site.
+							The number of empires in your mod pack is equally divided between
+							each of the people who have to the site.
 						</span>
 					</button>
 				</p>
@@ -124,8 +172,7 @@
 
 		<section>
 			<h2>Visit The Pan-Galactic Forum</h2>
-			<main id="listings">
-			</main>
+			<main id="listings"></main>
 		</section>
 
 		<script type="module" src="/upload.js" defer></script>

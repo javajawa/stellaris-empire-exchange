@@ -1,20 +1,26 @@
-body, input, button, section
-{
+body,
+input,
+button,
+section {
 	background: black;
-	font-family: 'Montserrat', sans-serif;
+	font-family: "Montserrat", sans-serif;
 	line-height: 1.3;
 	font-size: 14px;
 	font-weight: 700;
 	box-sizing: border-box;
 }
 
-p
-{
+p {
 	margin: 0 0 10px;
 }
 
-h1, h2, h3, code, a, a:visited, .highlight
-{
+h1,
+h2,
+h3,
+code,
+a,
+a:visited,
+.highlight {
 	font-weight: normal;
 	font-size: 14px;
 	color: #c4cac8;
@@ -22,13 +28,11 @@ h1, h2, h3, code, a, a:visited, .highlight
 	text-decoration: none;
 }
 
-.highlight
-{
+.highlight {
 	cursor: pointer;
 }
 
-section
-{
+section {
 	width: 640px;
 	margin: 0 auto;
 	background: #101614;
@@ -39,16 +43,13 @@ section
 	background-repeat: no-repeat;
 }
 
-@media(max-width: 640px)
-{
-	section
-	{
+@media (max-width: 640px) {
+	section {
 		width: 100%;
 	}
 }
 
-nav
-{
+nav {
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -58,12 +59,16 @@ nav
 	transition: width 0.4s, background 0.2s;
 	z-index: 99;
 
-	background: url('/menu.png') no-repeat,
-		linear-gradient(90deg, rgb(25, 40, 35), rgba(25, 40, 35, 0.8) 30px, transparent 30px);
+	background: url("/menu.png") no-repeat,
+		linear-gradient(
+			90deg,
+			rgb(25, 40, 35),
+			rgba(25, 40, 35, 0.8) 30px,
+			transparent 30px
+		);
 }
 
-nav a
-{
+nav a {
 	display: block;
 	height: 20px;
 	padding: 0 5px 10px 25px;
@@ -76,27 +81,25 @@ nav a
 	background-repeat: no-repeat;
 }
 
-nav span
-{
+nav span {
 	display: inline-block;
 	opacity: 0;
 	transition: opacity 0.4s;
 }
 
-nav:hover
-{
+nav:hover {
 	width: 200px;
 	border-right: 1px solid #72b89c;
-	background: url('/menu.png') no-repeat,
+	background: url("/menu.png") no-repeat,
 		linear-gradient(90deg, rgb(25, 40, 35), rgba(25, 40, 35, 0.8));
 }
 
-nav:hover>a>span
-{
+nav:hover > a > span {
 	opacity: 1;
 }
 
-section>h1:first-child, section>h2:first-child {
+section > h1:first-child,
+section > h2:first-child {
 	text-align: left;
 	font-size: 20px;
 	height: 40px;
@@ -105,12 +108,11 @@ section>h1:first-child, section>h2:first-child {
 	font-weight: 400;
 }
 
-section>img {
+section > img {
 	margin-left: 20px;
 }
 
-section main
-{
+section main {
 	background: #0a0e0d;
 	color: #72b89c;
 	padding: 3px;
@@ -118,8 +120,8 @@ section main
 	margin: 10px 0;
 }
 
-section>a, button
-{
+section > a,
+button {
 	position: relative;
 	display: block;
 	width: 100%;
@@ -139,9 +141,10 @@ button[disabled] {
 	text-decoration: line-through;
 }
 
-section a:hover, button:not([disabled]):hover {
+section a:hover,
+button:not([disabled]):hover {
 	background: #144;
-	background: linear-gradient(to bottom, #033 0%,#144 50%, #244 100%);
+	background: linear-gradient(to bottom, #033 0%, #144 50%, #244 100%);
 }
 
 button[style]:before {
@@ -153,7 +156,7 @@ button[style]:before {
 	width: 30px;
 	background-image: var(--image);
 	background-size: 30px 30px;
-	content: ' ';
+	content: " ";
 }
 
 button[style]:after {
@@ -165,7 +168,7 @@ button[style]:after {
 	width: 30px;
 	background-image: var(--image-alt);
 	background-size: 30px 30px;
-	content: ' ';
+	content: " ";
 }
 
 section a:visited {
@@ -178,8 +181,8 @@ section main input {
 	font-size: 14px;
 }
 
-section a>span, section button>span
-{
+section a > span,
+section button > span {
 	display: none;
 	position: absolute;
 	padding: 10px;
@@ -194,21 +197,23 @@ section a>span, section button>span
 	border: 1px solid #72b89c;
 }
 
-section a:hover>span, button:hover>span {
+section a:hover > span,
+button:hover > span {
 	display: block;
 }
 
-li>input[type="checkbox"] {
+li > input[type="checkbox"] {
 	margin-left: -20px;
 	margin-right: 2px;
 }
 
-#listings>h3, #listings>p {
+#listings > h3,
+#listings > p {
 	margin-left: 1em;
 	margin-right: 1em;
 }
 
-#listings>h3:not(:first-child) {
+#listings > h3:not(:first-child) {
 	margin-top: 1em;
 	padding-top: 1em;
 	border-top: 1px solid #72b89c;

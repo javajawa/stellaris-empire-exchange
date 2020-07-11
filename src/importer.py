@@ -28,7 +28,7 @@ def parse_user_empires(data: str) -> ClausObject:
     return parse(io.StringIO(data))
 
 
-def store(empire: ClausObject, folder: str = "pending"):
+def store(empire: ClausObject, folder: str = "pending") -> None:
     name = get_value(empire, "key")
     filename = f"{folder}/{name}.txt"
 
@@ -38,7 +38,7 @@ def store(empire: ClausObject, folder: str = "pending"):
         handle.write("}\n")
 
 
-def is_valid_empire(data: ClausObject):
+def is_valid_empire(data: ClausObject) -> bool:
     if not has_value(data, "key"):
         return False
 
@@ -85,7 +85,7 @@ def get_value(data: ClausObject, key: str) -> Optional[ClausDatum]:
     return candidates[0]
 
 
-def add_value(data: ClausObject, key: str, value: Union[bool, str]):
+def add_value(data: ClausObject, key: str, value: Union[bool, str]) -> None:
     data.append((key, value))
 
 

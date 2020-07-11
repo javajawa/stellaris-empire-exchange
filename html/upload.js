@@ -11,8 +11,8 @@ const input  = elemGenerator("input");
 const label  = elemGenerator("label");
 const li     = elemGenerator("li");
 
-upload.addEventListener("change", e => reader.readAsText(upload.files[0]));
-list.addEventListener("change", e => {
+upload.addEventListener("change", () => reader.readAsText(upload.files[0]));
+list.addEventListener("change", () => {
 	submit.setAttribute("disabled", "");
 	list.querySelectorAll("input").forEach(i => {
 		i.checked && submit.removeAttribute("disabled")
@@ -102,7 +102,7 @@ function processEmpire(text) {
 
 	lines.map(line => line.trim())
 		.filter(line => line.startsWith("ethic"))
-		.map(line => line.replace(/^ethic=\"/, ""))
+		.map(line => line.replace(/^ethic="/, ""))
 		.map(line => line.replace(/^ethic_/, ""))
 		.map(line => line.replace("_", " "))
 		.map(line => line.replace(/"$/, ""))

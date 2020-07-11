@@ -35,7 +35,6 @@ def page_file(self: http.server.BaseHTTPRequestHandler, filename: str, mime: str
         # stat(2) the file handle to get the file size.
         stat = os.fstat(contents.fileno())
 
-        self.log_message("Dates: %s vs %s", stat.st_mtime, mod_date)
         if int(stat.st_mtime) <= mod_date:
             self.send_response(304)
             self.send_header("Last-Modified", self.date_time_string(int(stat.st_mtime)))

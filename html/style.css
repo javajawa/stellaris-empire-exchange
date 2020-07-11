@@ -13,12 +13,13 @@ p
 	margin: 0 0 10px;
 }
 
-h1, h2, h3, code, .highlight
+h1, h2, h3, code, a, a:visited, .highlight
 {
 	font-weight: normal;
 	font-size: 14px;
 	color: #c4cac8;
 	font-weight: 700;
+	text-decoration: none;
 }
 
 .highlight
@@ -44,6 +45,55 @@ section
 	{
 		width: 100%;
 	}
+}
+
+nav
+{
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 50px;
+	padding: 80px 5px;
+	bottom: 0;
+	transition: width 0.4s, background 0.2s;
+	z-index: 99;
+
+	background: url('/menu.png') no-repeat,
+		linear-gradient(90deg, rgb(25, 40, 35), rgba(25, 40, 35, 0.8) 30px, transparent 30px);
+}
+
+nav a
+{
+	display: block;
+	height: 20px;
+	padding: 0 5px 10px 25px;
+	vertical-align: middle;
+	white-space: nowrap;
+	overflow: visible;
+
+	background-image: var(--image);
+	background-size: 20px 20px;
+	background-repeat: no-repeat;
+}
+
+nav span
+{
+	display: inline-block;
+	opacity: 0;
+	transition: opacity 0.4s;
+}
+
+nav:hover
+{
+	width: 200px;
+	border-right: 1px solid #72b89c;
+	background: url('/menu.png') no-repeat,
+		linear-gradient(90deg, rgb(25, 40, 35), rgba(25, 40, 35, 0.8));
+}
+
+nav:hover>a>span
+{
+	opacity: 1;
 }
 
 section>h1:first-child, section>h2:first-child {

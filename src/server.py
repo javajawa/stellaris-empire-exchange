@@ -28,14 +28,20 @@ from handlers import (
 HandlerWithNoArg = Callable[[Handler], None]
 HandlerWithOneArg = Callable[[Handler, str], None]
 HandlerWithTwoArgs = Callable[[Handler, str, str], None]
+HandlerWithThreeArgs = Callable[[Handler, str, str, str], None]
 
-Handlers = Union[HandlerWithNoArg, HandlerWithOneArg, HandlerWithTwoArgs]
+Handlers = Union[
+    HandlerWithNoArg, HandlerWithOneArg, HandlerWithTwoArgs, HandlerWithThreeArgs
+]
 
 RouteWithNoArg = Tuple[HandlerWithNoArg, bool]
 RouteWithOneArg = Tuple[HandlerWithOneArg, bool, str]
-RouteWithTwoArg = Tuple[HandlerWithTwoArgs, bool, str, str]
+RouteWithTwoArg = Tuple[Union[HandlerWithTwoArgs, HandlerWithThreeArgs], bool, str, str]
+RouteWithThreeArg = Tuple[
+    Union[HandlerWithTwoArgs, HandlerWithThreeArgs], bool, str, str, str
+]
 
-Route = Union[RouteWithNoArg, RouteWithOneArg, RouteWithTwoArg]
+Route = Union[RouteWithNoArg, RouteWithOneArg, RouteWithTwoArg, RouteWithThreeArg]
 
 ROUTING: Dict[str, Route] = {
     "/": (page_file, False, "html/welcome.html", "text/html"),
@@ -46,12 +52,12 @@ ROUTING: Dict[str, Route] = {
     "/upload.js": (page_file, True, "html/upload.js", "application/javascript"),
     "/sources.js": (page_file, True, "html/sources.js", "application/javascript"),
     "/style.css": (page_file, False, "html/style.css", "text/css"),
-    "/menu.png": (page_file, False, "html/menu.png", "image/png"),
+    "/menu.png": (page_file, False, "images/menu.png", "image/png"),
 }
 
 PREFIX_ROUTING: Dict[str, Route] = {
-    "/ethic/": (page_file, False, "2", "image/png"),
-    "/event-": (page_file, False, "1", "image/jpg"),
+    "/ethic/": (page_file, False, "2", "image/png", "images/"),
+    "/event-": (page_file, False, "1", "image/jpg", "images/"),
     "/ajax/": (page_ajax_list, True, "2"),
 }
 

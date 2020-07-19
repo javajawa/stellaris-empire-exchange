@@ -3,11 +3,11 @@ name: Linting
 on:
   push:
     branches:
-      - master
+      - mainline
       - future
   pull_request:
     branches:
-      - master
+      - mainline
 
 jobs:
   python-lint:

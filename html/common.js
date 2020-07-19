@@ -9,8 +9,10 @@ document.addEventListener("mouseover", e => {
 	tooltip.style.top = Math.max(e.offsetY, 10) + 10 + "px";
 });
 
-fetch("/username")
-	.then(r => r.text())
-	.then(username => {
-		document.getElementById("username").textContent = username;
-	});
+const targets = document.getElementsByClassName("js-username");
+
+if (targets.length) {
+	fetch("/username")
+		.then(r => r.text())
+		.then(username => [...targets].forEach(e => (e.textContent = username)));
+}

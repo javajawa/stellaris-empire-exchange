@@ -50,7 +50,7 @@ ROUTING: Dict[str, Route] = {
     "/generate": (download_user_empires, True),
     "/username": (send_username, True, "$user"),
     "/sources-list": (page_file, True, "sources.json", "application_json"),
-    "/common.js": (page_file, False, "html/upload.js", "application/javascript"),
+    "/common.js": (page_file, False, "html/common.js", "application/javascript"),
     "/upload.js": (page_file, False, "html/upload.js", "application/javascript"),
     "/sources.js": (page_file, False, "html/sources.js", "application/javascript"),
     "/style.css": (page_file, False, "html/style.css", "text/css"),

@@ -46,11 +46,13 @@ Route = Union[RouteWithNoArg, RouteWithOneArg, RouteWithTwoArg, RouteWithThreeAr
 ROUTING: Dict[str, Route] = {
     "/": (page_file, False, "html/welcome.html", "text/html"),
     "/upload": (page_file, True, "html/upload.html", "text/html"),
+    "/download": (page_file, False, "html/download.html", "text/html"),
     "/generate": (download_user_empires, True),
     "/username": (send_username, True, "$user"),
     "/sources-list": (page_file, True, "sources.json", "application_json"),
-    "/upload.js": (page_file, True, "html/upload.js", "application/javascript"),
-    "/sources.js": (page_file, True, "html/sources.js", "application/javascript"),
+    "/common.js": (page_file, False, "html/upload.js", "application/javascript"),
+    "/upload.js": (page_file, False, "html/upload.js", "application/javascript"),
+    "/sources.js": (page_file, False, "html/sources.js", "application/javascript"),
     "/style.css": (page_file, False, "html/style.css", "text/css"),
     "/menu.png": (page_file, False, "images/menu.png", "image/png"),
 }

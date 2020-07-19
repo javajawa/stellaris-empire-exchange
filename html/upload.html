@@ -7,7 +7,7 @@
 	</head>
 	<body>
 		<!--include html/header.html-->
-		<section id="_upload">
+		<section>
 			<h2>Upload Your Empires</h2>
 
 			<img
@@ -67,96 +67,6 @@
 				</button>
 			</form>
 		</section>
-
-		<section id="_download">
-			<h2>Generate A Random Empires Mod</h2>
-
-			<form method="get" action="/generate">
-				<main>
-					<p>
-						Here you can generate and download a mod pack with a random
-						selection of empires from the pool.
-					</p>
-					<p>
-						Unzip this in your mod folder, and you should see a file
-						<code>random-empires.mod</code> and a folder
-						<code>random-empires</code>. When you next launch Stellaris, you
-						should be able to enable the "Random Empires Mod" in the mods
-						section of the launcher.
-					</p>
-					<h2>Mod Folder Location</h2>
-					<p>
-						The location of your mod depends on your operating system and how
-						you are running Stellaris. The following are correct for games
-						launched from Steam.
-					</p>
-					<ul>
-						<li>
-							<code
-								>%USERPROFILE%\Documents\Paradox
-								Interactive\Stellaris\mod\</code
-							>
-							[Windows]
-						</li>
-						<li>
-							<code>~/Documents/Paradox Interactive/Stellaris/mod/</code> [Mac]
-						</li>
-						<li>
-							<code>~/.local/share/Paradox Interactive/Stellaris/mod/</code>
-							[Linux]
-						</li>
-					</ul>
-					<p>
-						Empires Available: <span id="empire-count">[Please Wait]</span
-						><br />
-						<label for="empire_count">Number of Empires to include</label>
-						<input
-							id="empire_count"
-							name="empire_count"
-							type="number"
-							min="4"
-							max="80"
-							value="8"
-						/>
-					</p>
-					<ul id="sources"></ul>
-				</main>
-				<p>
-					<button
-						name="balance_authors"
-						value="off"
-						style="--image: url(/ethic/xenophile.png);"
-					>
-						Form a Council by Lottery
-
-						<span>
-							Empires are chosen at random from the entire pool, based on the
-							sources you selected above.
-						</span>
-					</button>
-
-					<button
-						name="balance_authors"
-						value="on"
-						style="--image: url(/ethic/egalitarian.png);"
-					>
-						Balance Authors
-
-						<span>
-							The number of empires in your mod pack is equally divided between
-							each of the people who have to the site.
-						</span>
-					</button>
-				</p>
-			</form>
-		</section>
-
-		<section>
-			<h2>Visit The Pan-Galactic Forum</h2>
-			<main id="listings"></main>
-		</section>
-
-		<script type="module" src="/upload.js" defer></script>
 		<script type="module" src="/sources.js" defer></script>
 	</body>
 </html>

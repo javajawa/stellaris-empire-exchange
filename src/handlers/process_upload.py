@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, List
+from typing import Dict, List, Union
 
 import http.server
 import os
@@ -13,13 +13,17 @@ from clauswitz import ClausObject
 
 import importer
 
-PostData = Dict[str, List[bytes]]
+PostData = Dict[str, List[Union[str, bytes]]]
 
 
 def process_upload(
-    self: http.server.BaseHTTPRequestHandler, username: str, msg: PostData
+    self: http.server.BaseHTTPRequestHandler, msg: PostData, username: str
 ) -> None:
     if "select" not in msg or "file" not in msg:
+        self.send_error(415, "Missing file or empire list in post data")
+        return
+
+    if not isinstance(msg["file"][0], bytes):
         self.send_error(415, "Missing file or empire list in post data")
         return
 

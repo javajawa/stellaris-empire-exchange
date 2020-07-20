@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Stellaris Empire Exchange</title>
+		<!--include html/meta.html-->
+		<style>
+			<!--include html/style.css-->
+		</style>
+	</head>
+	<body>
+		<!--include html/header.html-->
+		<section>
+			<h2>Login</h2>
+
+			<form action="/login" method="post" enctype="multipart/form-data">
+				<main>
+					<label for="username">Username </label>
+					<input type="text" name="username" id="username" required />
+					<label for="password">Password </label>
+					<input type="password" name="password" id="password" required />
+				</main>
+				<button id="submit" type="submit">Login</button>
+			</form>
+		</section>
+	</body>
+</html>
